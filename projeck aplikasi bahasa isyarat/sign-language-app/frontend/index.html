@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sign Language Recognition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -23,50 +25,141 @@
       <button class="mode-btn" data-mode="kata">Kata</button>
     </div>
 
-    <!-- VIDEO + RESULT -->
+    <!-- AREA UTAMA -->
     <div class="main-content">
 
-      <!-- Kamera -->
-      <div class="camera-wrapper">
-        <video id="video" autoplay playsinline></video>
-        <canvas id="canvas" style="display:none;"></canvas>
-        <div class="camera-overlay" id="no-cam">
-          <span>Kamera tidak aktif</span>
+      <!-- KIRI/ATAS: Kamera + Hasil + Kontrol -->
+      <div class="left-col">
+
+        <!-- Kamera -->
+        <div class="camera-wrapper">
+          <video id="video" autoplay playsinline></video>
+          <canvas id="canvas" style="display:none;"></canvas>
+          <div class="cam-mode-badge" id="cam-mode-badge">HURUF</div>
+          <div class="camera-overlay" id="no-cam">
+            <div class="no-cam-inner">
+              <div class="cam-icon"></div>
+              <span>Kamera tidak aktif</span>
+              <p>Tekan "Mulai Kamera" untuk memulai</p>
+            </div>
+          </div>
         </div>
+
+        <!-- HASIL DETEKSI — langsung di bawah kamera -->
+        <div class="result-bar">
+          <div class="result-bar-left">
+            <span class="result-bar-label">Hasil Deteksi</span>
+            <span class="result-bar-value" id="display-result">–</span>
+          </div>
+          <div class="result-bar-right">
+            <span class="status-dot" id="status-dot"></span>
+            <span class="result-bar-status" id="display-status"></span>
+          </div>
+        </div>
+
+        <!-- TOMBOL KONTROL -->
+        <div class="controls">
+          <button id="btn-start" class="btn-primary">▶&nbsp; Mulai Kamera</button>
+          <button id="btn-stop" class="btn-secondary" disabled>⏹&nbsp; Stop</button>
+        </div>
+
       </div>
 
-      <!-- Panel hasil -->
+      <!-- KANAN: Info tambahan -->
       <div class="result-panel">
-        <div class="result-card">
-          <div class="result-label">Mode</div>
-          <div class="result-value mode-display" id="display-mode">HURUF</div>
-        </div>
-        <div class="result-card main-result">
-          <div class="result-label">Hasil Deteksi</div>
-          <div class="result-value result-display" id="display-result">-</div>
-        </div>
-        <div class="result-card">
-          <div class="result-label">Status</div>
-          <div class="result-value status-display" id="display-status">Menunggu...</div>
+
+        <div class="info-card">
+          <div class="info-card-icon"> </div>
+          <div>
+            <div class="result-label">Mode Aktif</div>
+            <div class="result-value mode-display" id="display-mode">HURUF</div>
+          </div>
         </div>
 
-        <!-- Tombol kontrol -->
-        <div class="controls">
-          <button id="btn-start" class="btn-primary">Mulai Kamera</button>
-          <button id="btn-stop" class="btn-secondary" disabled>Stop</button>
+        <div class="tip-card">
+          <p class="tip-title">Tips Penggunaan</p>
+          <p class="tip-text">Pastikan tangan terlihat jelas di kamera. Lakukan gerakan perlahan dan stabil untuk hasil deteksi terbaik.</p>
         </div>
 
-        <!-- Info kata -->
-        <div class="kata-info" id="kata-info" style="display:none">
-          <p class="info-title">Daftar Kata:</p>
+        <!-- Info kata — hanya muncul di mode kata -->
+        <!-- <div class="kata-info" id="kata-info" style="display:none">
+          <p class="info-title">Kata yang didukung:</p>
           <div class="kata-list">
             <span>berdoa</span><span>berjalan</span><span>berpikir</span>
             <span>makan</span><span>mandi</span><span>saya</span><span>tidur</span>
           </div>
+        </div> -->
+
+      </div>
+    </div><!-- /main-content -->
+
+    <!-- ========================================
+         PANDUAN GERAKAN — paling bawah sendiri
+    ========================================= -->
+    <section class="guide-section">
+      <div class="guide-section-header">
+        <h2>Panduan Gerakan</h2>
+        <p>Klik tombol untuk melihat referensi gerakan tangan</p>
+      </div>
+
+      <!-- HURUF -->
+      <div class="guide-block" id="guide-huruf">
+        <div class="guide-header">
+          <div class="guide-header-info">
+            <span class="guide-badge">A – Z</span>
+            <span class="guide-title">Panduan Huruf Alfabet</span>
+          </div>
+          <button class="btn-guide" id="btn-guide-huruf" onclick="toggleGuide('huruf')">
+            Lihat Panduan
+          </button>
+        </div>
+        <div class="guide-image-wrap hidden" id="img-wrap-huruf">
+          <img src="images/gambar alfabet.jpeg" alt="Panduan Alfabet BISINDO" class="guide-img" />
+          <p class="guide-caption">Referensi gerakan alfabet A–Z </p>
         </div>
       </div>
 
-    </div><!-- /main-content -->
+      <!-- ANGKA -->
+      <div class="guide-block hidden" id="guide-angka">
+        <div class="guide-header">
+          <div class="guide-header-info">
+            <span class="guide-badge">0 - 9</span>
+            <span class="guide-title">Panduan Angka</span>
+          </div>
+          <button class="btn-guide" id="btn-guide-angka" onclick="toggleGuide('angka')">
+            Lihat Panduan
+          </button>
+        </div>
+        <div class="guide-image-wrap hidden" id="img-wrap-angka">
+          <img src="images/gambar number.jpeg" alt="Panduan Angka 1–10" class="guide-img" />
+          <p class="guide-caption">Referensi gerakan angka 1–10</p>
+        </div>
+      </div>
+
+      <!-- KATA -->
+      <div class="guide-block hidden" id="guide-kata">
+        <div class="guide-header">
+          <div class="guide-header-info">
+            <span class="guide-badge">7 kata</span>
+            <span class="guide-title">Panduan Gerakan Kata</span>
+          </div>
+        </div>
+        <div class="kata-guide-buttons">
+          <button class="btn-kata-guide" onclick="showKataGuide('berdoa')">Berdoa</button>
+          <button class="btn-kata-guide" onclick="showKataGuide('berjalan')">Berjalan</button>
+          <button class="btn-kata-guide" onclick="showKataGuide('berpikir')">Berpikir</button>
+          <button class="btn-kata-guide" onclick="showKataGuide('makan')">Makan</button>
+          <button class="btn-kata-guide" onclick="showKataGuide('mandi')">Mandi</button>
+          <button class="btn-kata-guide" onclick="showKataGuide('saya')">Saya</button>
+          <button class="btn-kata-guide" onclick="showKataGuide('tidur')">Tidur</button>
+        </div>
+        <div class="guide-image-wrap hidden" id="img-wrap-kata">
+          <img src="" alt="" class="guide-img" id="kata-guide-img" />
+          <p class="guide-caption" id="kata-guide-caption"></p>
+        </div>
+      </div>
+
+    </section>
 
   </div><!-- /app-container -->
 
