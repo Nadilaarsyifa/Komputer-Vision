@@ -1,0 +1,21 @@
+# Jupyter
+.ipynb_checkpoints/
+
+# Dataset folders
+/project recognition bahasa isyarat/asl_alphabet_train/
+/project recognition bahasa isyarat/dataset_alfabet/
+/project recognition bahasa isyarat/dataset_angka_myself/
+/project recognition bahasa isyarat/Dataset_Kata/
+/project recognition bahasa isyarat/dataset_angka/
+
+# Model files
+/project recognition bahasa isyarat/model_kata.pkl
+/project recognition bahasa isyarat/model_alfabet-Copy1.pkl
+/project recognition bahasa isyarat/model_angka-Copy1.pkl
+/project recognition bahasa isyarat/model_kata-Copy1.pkl
+
+/project aplikasi bahasa isyarat/model_alfabet.pkl
+/project aplikasi bahasa isyarat/model_angka.pkl
+
+# Ignore all pickle files
+*.pkl
