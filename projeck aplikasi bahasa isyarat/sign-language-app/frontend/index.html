@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Language Recognition</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- HEADER -->
+    <header>
+      <h1>Sign Language Recognition</h1>
+      <p class="subtitle">Deteksi bahasa isyarat secara real-time</p>
+    </header>
+
+    <!-- MODE SELECTOR -->
+    <div class="mode-bar">
+      <button class="mode-btn active" data-mode="huruf">Huruf</button>
+      <button class="mode-btn" data-mode="angka">Angka</button>
+      <button class="mode-btn" data-mode="kata">Kata</button>
+    </div>
+
+    <!-- VIDEO + RESULT -->
+    <div class="main-content">
+
+      <!-- Kamera -->
+      <div class="camera-wrapper">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <div class="camera-overlay" id="no-cam">
+          <span>Kamera tidak aktif</span>
+        </div>
+      </div>
+
+      <!-- Panel hasil -->
+      <div class="result-panel">
+        <div class="result-card">
+          <div class="result-label">Mode</div>
+          <div class="result-value mode-display" id="display-mode">HURUF</div>
+        </div>
+        <div class="result-card main-result">
+          <div class="result-label">Hasil Deteksi</div>
+          <div class="result-value result-display" id="display-result">-</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Status</div>
+          <div class="result-value status-display" id="display-status">Menunggu...</div>
+        </div>
+
+        <!-- Tombol kontrol -->
+        <div class="controls">
+          <button id="btn-start" class="btn-primary">Mulai Kamera</button>
+          <button id="btn-stop" class="btn-secondary" disabled>Stop</button>
+        </div>
+
+        <!-- Info kata -->
+        <div class="kata-info" id="kata-info" style="display:none">
+          <p class="info-title">Daftar Kata:</p>
+          <div class="kata-list">
+            <span>berdoa</span><span>berjalan</span><span>berpikir</span>
+            <span>makan</span><span>mandi</span><span>saya</span><span>tidur</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+
+  </div><!-- /app-container -->
+
+  <script src="app.js"></script>
+</body>
+</html>
