@@ -1,12 +1,19 @@
 # Jupyter
 .ipynb_checkpoints/
 
+
 # Dataset folders
 /project recognition bahasa isyarat/asl_alphabet_train/
 /project recognition bahasa isyarat/dataset_alfabet/
 /project recognition bahasa isyarat/dataset_angka_myself/
 /project recognition bahasa isyarat/Dataset_Kata/
 /project recognition bahasa isyarat/dataset_angka/
+
+/project recognition bahasa isyarat/alfabet_bisindo/
+/project recognition bahasa isyarat/dataset_kata_baru1/
+/project recognition bahasa isyarat/dataset_kata_baru2/
+/project recognition bahasa isyarat/dataset_kata_baru3/
+/project recognition bahasa isyarat/dataset_kata_baru4/
 
 # Model files
 /project recognition bahasa isyarat/model_kata.pkl

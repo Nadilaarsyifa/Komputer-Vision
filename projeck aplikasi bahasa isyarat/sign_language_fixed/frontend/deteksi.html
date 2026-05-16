@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignLens — Deteksi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { background: var(--light-bg); }
+
+    .detect-layout {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 4vw 60px;
+    }
+
+    .detect-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 26px;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .detect-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .detect-controls-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* ── MAIN GRID ── */
+    .detect-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    /* ── CAMERA SIDE ── */
+    .cam-block {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .camera-wrapper {
+      position: relative;
+      background: var(--dark);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+      border: 2px solid var(--dark-3);
+      aspect-ratio: 4/3;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scaleX(-1);
+    }
+
+    /* Scan lines overlay */
+    .cam-scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.04) 3px,
+        rgba(0,0,0,0.04) 4px
+      );
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Scanning sweep */
+    .cam-sweep {
+      position: absolute;
+      left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, var(--green-400) 40%, var(--green-500) 50%, var(--green-400) 60%, transparent 100%);
+      box-shadow: 0 0 12px 4px rgba(34,197,94,0.3);
+      animation: sweep 3s linear infinite;
+      z-index: 3;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @keyframes sweep {
+      0%   { top: 0%; opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    /* Corners */
+    .cam-corners { position: absolute; inset: 14px; z-index: 4; pointer-events: none; }
+    .cc {
+      position: absolute;
+      width: 28px; height: 28px;
+      border-color: var(--green-400);
+      border-style: solid;
+    }
+    .cc.tl { top: 0; left: 0; border-width: 2.5px 0 0 2.5px; border-radius: 4px 0 0 0; }
+    .cc.tr { top: 0; right: 0; border-width: 2.5px 2.5px 0 0; border-radius: 0 4px 0 0; }
+    .cc.bl { bottom: 0; left: 0; border-width: 0 0 2.5px 2.5px; border-radius: 0 0 0 4px; }
+    .cc.br { bottom: 0; right: 0; border-width: 0 2.5px 2.5px 0; border-radius: 0 0 4px 0; }
+
+    /* Badges on camera */
+    .cam-overlay-top {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .cam-mode-pill {
+      background: rgba(10,15,13,0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(34,197,94,0.4);
+      color: var(--green-400);
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 6px 14px;
+      border-radius: 999px;
+    }
+
+    .cam-fps-pill {
+      background: rgba(10,15,13,0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #8fad97;
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+    }
+
+    .cam-no-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--dark-2);
+      color: #5a7a63;
+      gap: 12px;
+      z-index: 6;
+    }
+
+    .cam-no-icon { font-size: 52px; opacity: 0.4; }
+    .cam-no-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: #8fad97; }
+    .cam-no-sub { font-size: 13px; text-align: center; max-width: 220px; line-height: 1.5; }
+
+    /* sim mode tag */
+    .sim-tag {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(234,179,8,0.15);
+      border: 1px solid rgba(234,179,8,0.4);
+      color: #fbbf24;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 4px 12px;
+      border-radius: 999px;
+      z-index: 6;
+      display: none;
+    }
+
+    /* Controls row */
+    .cam-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Mode bar under camera */
+    .mode-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .mode-section-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    /* ── RESULT PANEL ── */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .result-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+    }
+
+    .result-card-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 12px;
+    }
+
+    .result-big-letter {
+      font-family: var(--font-display);
+      font-size: 80px;
+      font-weight: 800;
+      color: var(--green-600);
+      line-height: 1;
+      min-height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: -0.02em;
+    }
+
+    .result-letter-sub {
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .conf-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    .conf-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    .conf-value { font-size: 14px; font-weight: 700; color: var(--text-main); }
+
+    /* status */
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .status-text {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* text builder */
+    .text-card .built-text {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      min-height: 48px;
+      word-break: break-all;
+      color: var(--text-main);
+      padding: 12px 16px;
+      background: var(--green-50);
+      border: 1.5px solid var(--green-200);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+    }
+
+    .text-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-small {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: white;
+      border-radius: 999px;
+      padding: 7px 16px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .btn-small:hover { border-color: var(--green-400); color: var(--green-700); }
+    .btn-small.danger:hover { border-color: #fca5a5; color: #ef4444; background: #fef2f2; }
+
+    /* history */
+    .hist-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 36px;
+    }
+
+    .hist-chip {
+      background: var(--green-50);
+      border: 1px solid var(--green-200);
+      color: var(--green-700);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      animation: chip-in 0.2s ease;
+    }
+
+    @keyframes chip-in {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* guide section */
+    .guide-section {
+      margin-top: 32px;
+    }
+
+    .guide-heading {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .guide-block {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .guide-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .guide-block-header:hover { background: var(--green-50); }
+
+    .guide-block-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .guide-badge-pill {
+      background: var(--green-100);
+      border: 1.5px solid var(--green-200);
+      color: var(--green-700);
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 5px 14px;
+      border-radius: 999px;
+    }
+
+    .guide-block-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .guide-toggle-btn {
+      background: var(--green-600);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .guide-toggle-btn:hover { background: var(--green-700); }
+
+    .guide-image-wrap {
+      padding: 0 22px 22px;
+    }
+
+    .guide-img {
+      width: 100%;
+      border-radius: var(--radius-md);
+      display: block;
+    }
+
+    .guide-caption {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .kata-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 22px 22px;
+    }
+
+    .kata-btn {
+      background: var(--green-50);
+      border: 1.5px solid var(--green-200);
+      color: var(--green-700);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .kata-btn:hover, .kata-btn.active {
+      background: var(--green-600);
+      color: white;
+      border-color: var(--green-600);
+    }
+
+    /* kata words badge */
+    .kata-support-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .kata-support-chip {
+      background: var(--green-50);
+      border: 1px solid var(--green-200);
+      color: var(--green-700);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 13px;
+    }
+
+    @media (max-width: 960px) {
+      .detect-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-dot"></div>
+    SignLens
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Beranda</a></li>
+    <li><a href="deteksi.html" class="active">Deteksi</a></li>
+    <li><a href="tentang.html">Tentang</a></li>
+  </ul>
+  <a href="tentang.html" class="btn btn-ghost" style="font-size:13px; padding:10px 20px;">Tentang Proyek</a>
+</nav>
+
+<div class="detect-layout">
+
+  <div class="detect-header">
+    <div>
+      <div class="section-label">Real-Time</div>
+      <h1 class="detect-title">Halaman Deteksi</h1>
+    </div>
+    <div class="detect-controls-top">
+      <div class="mode-bar">
+        <button class="mode-btn active" data-mode="huruf">Huruf</button>
+        <button class="mode-btn" data-mode="angka">Angka</button>
+        <button class="mode-btn" data-mode="kata">Kata</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="detect-grid">
+
+    <!-- LEFT: Camera -->
+    <div class="cam-block">
+      <div class="camera-wrapper">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <div class="cam-scanlines"></div>
+        <div class="cam-sweep" id="cam-sweep"></div>
+        <div class="cam-corners">
+          <div class="cc tl"></div>
+          <div class="cc tr"></div>
+          <div class="cc bl"></div>
+          <div class="cc br"></div>
+        </div>
+        <div class="cam-overlay-top">
+          <span class="cam-mode-pill" id="cam-mode-pill">● HURUF</span>
+          <span class="cam-fps-pill" id="cam-fps-pill">– fps</span>
+        </div>
+        <div class="cam-no-overlay" id="no-cam">
+          <div class="cam-no-icon">📷</div>
+          <div class="cam-no-title">Kamera Tidak Aktif</div>
+          <div class="cam-no-sub">Tekan "Aktifkan Kamera" untuk memulai deteksi</div>
+        </div>
+        <div class="sim-tag" id="sim-tag">⚠ MODE SIMULASI</div>
+      </div>
+
+      <div class="cam-controls">
+        <button id="btn-start" class="btn btn-primary">▶&nbsp; Aktifkan Kamera</button>
+        <button id="btn-stop" class="btn btn-secondary" disabled>⏹&nbsp; Stop</button>
+      </div>
+
+      <!-- kata supported words info -->
+      <div id="kata-info" style="display:none;" class="result-card" style="padding:16px">
+        <div class="result-card-title" style="margin-bottom:10px;">Kata yang didukung</div>
+        <div class="kata-support-list">
+          <span class="kata-support-chip">berdoa</span>
+          <span class="kata-support-chip">berjalan</span>
+          <span class="kata-support-chip">berpikir</span>
+          <span class="kata-support-chip">makan</span>
+          <span class="kata-support-chip">mandi</span>
+          <span class="kata-support-chip">saya</span>
+          <span class="kata-support-chip">tidur</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Panel -->
+    <div class="panel">
+
+      <!-- Main result -->
+      <div class="result-card">
+        <div class="result-card-title">Hasil Deteksi</div>
+        <div class="result-big-letter" id="display-result">–</div>
+
+        <div class="conf-row">
+          <span class="conf-label">Confidence Score</span>
+          <span class="conf-value" id="display-confidence">–</span>
+        </div>
+        <div class="conf-bar-wrap">
+          <div class="conf-bar-fill" id="conf-bar" style="width:0%"></div>
+        </div>
+
+        <div class="status-row">
+          <span class="status-dot" id="status-dot"></span>
+          <span class="status-text" id="display-status">Kamera tidak aktif</span>
+        </div>
+      </div>
+
+      <!-- Text Builder -->
+      <div class="result-card text-card">
+        <div class="result-card-title">Teks Terbentuk</div>
+        <div class="built-text" id="built-text">&nbsp;</div>
+        <div class="text-actions">
+          <button class="btn-small" id="btn-add-space">+ Spasi</button>
+          <button class="btn-small danger" id="btn-clear-text">Hapus</button>
+          <button class="btn-small" id="btn-copy-text">Salin</button>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="result-card">
+        <div class="result-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Riwayat Deteksi</span>
+          <button class="btn-small danger" id="btn-clear-hist">Hapus</button>
+        </div>
+        <div class="hist-list" id="hist-list">
+          <span style="font-size:13px;color:var(--text-light);margin-top:4px;">Belum ada deteksi</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- GUIDE SECTION -->
+  <div class="guide-section">
+    <h2 class="guide-heading">Panduan Gerakan</h2>
+
+    <!-- Huruf -->
+    <div class="guide-block" id="guide-huruf">
+      <div class="guide-block-header" onclick="toggleGuide('huruf')">
+        <div class="guide-block-left">
+          <span class="guide-badge-pill">A – Z</span>
+          <span class="guide-block-title">Panduan Huruf Alfabet</span>
+        </div>
+        <button class="guide-toggle-btn" id="btn-guide-huruf">Lihat Panduan</button>
+      </div>
+      <div class="guide-image-wrap hidden" id="img-wrap-huruf">
+        <img src="images/gambar alfabet.jpeg" alt="Panduan Alfabet BISINDO" class="guide-img" />
+        <p class="guide-caption">Referensi gerakan alfabet A–Z dalam BISINDO</p>
+      </div>
+    </div>
+
+    <!-- Angka -->
+    <div class="guide-block hidden" id="guide-angka">
+      <div class="guide-block-header" onclick="toggleGuide('angka')">
+        <div class="guide-block-left">
+          <span class="guide-badge-pill">0 – 9</span>
+          <span class="guide-block-title">Panduan Angka</span>
+        </div>
+        <button class="guide-toggle-btn" id="btn-guide-angka">Lihat Panduan</button>
+      </div>
+      <div class="guide-image-wrap hidden" id="img-wrap-angka">
+        <img src="images/gambar number.jpeg" alt="Panduan Angka" class="guide-img" />
+        <p class="guide-caption">Referensi gerakan angka 0–9</p>
+      </div>
+    </div>
+
+    <!-- Kata -->
+    <div class="guide-block hidden" id="guide-kata">
+      <div class="guide-block-header">
+        <div class="guide-block-left">
+          <span class="guide-badge-pill">7 kata</span>
+          <span class="guide-block-title">Panduan Gerakan Kata</span>
+        </div>
+      </div>
+      <div class="kata-btns">
+        <button class="kata-btn" onclick="showKataGuide('berdoa')">berdoa</button>
+        <button class="kata-btn" onclick="showKataGuide('berjalan')">berjalan</button>
+        <button class="kata-btn" onclick="showKataGuide('berpikir')">berpikir</button>
+        <button class="kata-btn" onclick="showKataGuide('makan')">makan</button>
+        <button class="kata-btn" onclick="showKataGuide('mandi')">mandi</button>
+        <button class="kata-btn" onclick="showKataGuide('saya')">saya</button>
+        <button class="kata-btn" onclick="showKataGuide('tidur')">tidur</button>
+      </div>
+      <div class="guide-image-wrap hidden" id="img-wrap-kata">
+        <img src="" alt="" class="guide-img" id="kata-guide-img" />
+        <p class="guide-caption" id="kata-guide-caption"></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <p>© 2025 SignLens · Proyek Tugas Akhir · <a href="tentang.html">Tentang Proyek</a></p>
+</footer>
+
+<script>
+// ==========================================================
+// CONFIG
+// ==========================================================
+const API_URL = "http://127.0.0.1:8000/predict";
+const CAPTURE_INTERVAL_MS = 500;
+const SIM_INTERVAL_MS = 1800;
+
+// ==========================================================
+// STATE
+// ==========================================================
+let currentMode = "huruf";
+let isRunning = false;
+let intervalId = null;
+let stream = null;
+let isPredicting = false;
+let activeKataGuide = null;
+let simMode = false;
+
+let builtText = "";
+let histItems = [];
+let lastPred = null;
+let lastAddTime = 0;
+let fpsCounter = 0;
+let fpsLast = Date.now();
+
+// ==========================================================
+// DOM
+// ==========================================================
+const video        = document.getElementById("video");
+const canvas       = document.getElementById("canvas");
+const ctx          = canvas.getContext("2d");
+const btnStart     = document.getElementById("btn-start");
+const btnStop      = document.getElementById("btn-stop");
+const displayRes   = document.getElementById("display-result");
+const displayConf  = document.getElementById("display-confidence");
+const displayStat  = document.getElementById("display-status");
+const statusDot    = document.getElementById("status-dot");
+const camModePill  = document.getElementById("cam-mode-pill");
+const camFpsPill   = document.getElementById("cam-fps-pill");
+const confBar      = document.getElementById("conf-bar");
+const builtTextEl  = document.getElementById("built-text");
+const histListEl   = document.getElementById("hist-list");
+const noCam        = document.getElementById("no-cam");
+const simTag       = document.getElementById("sim-tag");
+const kataInfo     = document.getElementById("kata-info");
+const camSweep     = document.getElementById("cam-sweep");
+
+// ==========================================================
+// MODE BUTTONS
+// ==========================================================
+document.querySelectorAll(".mode-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentMode = btn.dataset.mode;
+    camModePill.textContent = "● " + currentMode.toUpperCase();
+    kataInfo.style.display = currentMode === "kata" ? "block" : "none";
+    updateGuideBlocks(currentMode);
+    resetResult();
+  });
+});
+
+function updateGuideBlocks(mode) {
+  document.getElementById("guide-huruf").classList.toggle("hidden", mode !== "huruf");
+  document.getElementById("guide-angka").classList.toggle("hidden", mode !== "angka");
+  document.getElementById("guide-kata").classList.toggle("hidden", mode !== "kata");
+  closeGuideImages();
+}
+
+// ==========================================================
+// GUIDE TOGGLES
+// ==========================================================
+function toggleGuide(type) {
+  const wrap = document.getElementById("img-wrap-" + type);
+  const btn  = document.getElementById("btn-guide-" + type);
+  if (!wrap) return;
+  const hidden = wrap.classList.contains("hidden");
+  wrap.classList.toggle("hidden", !hidden);
+  if (btn) btn.textContent = hidden ? "Tutup Panduan" : "Lihat Panduan";
+}
+
+function closeGuideImages() {
+  ["huruf","angka","kata"].forEach(t => {
+    const w = document.getElementById("img-wrap-" + t);
+    if (w) w.classList.add("hidden");
+    const b = document.getElementById("btn-guide-" + t);
+    if (b) b.textContent = "Lihat Panduan";
+  });
+  document.querySelectorAll(".kata-btn").forEach(b => b.classList.remove("active"));
+  activeKataGuide = null;
+}
+
+function showKataGuide(kata) {
+  const wrap    = document.getElementById("img-wrap-kata");
+  const img     = document.getElementById("kata-guide-img");
+  const caption = document.getElementById("kata-guide-caption");
+  if (!wrap || !img) return;
+
+  if (activeKataGuide === kata) {
+    wrap.classList.add("hidden");
+    document.querySelectorAll(".kata-btn").forEach(b => b.classList.remove("active"));
+    activeKataGuide = null;
+    return;
+  }
+
+  img.src = "images/panduan_" + kata + ".jpg";
+  img.alt = "Panduan gerakan: " + kata;
+  caption.textContent = "Gerakan untuk kata: " + kata.charAt(0).toUpperCase() + kata.slice(1);
+  wrap.classList.remove("hidden");
+  activeKataGuide = kata;
+
+  document.querySelectorAll(".kata-btn").forEach(b => {
+    b.classList.toggle("active", b.textContent.trim() === kata);
+  });
+}
+
+window.toggleGuide = toggleGuide;
+window.showKataGuide = showKataGuide;
+
+// ==========================================================
+// START CAMERA
+// ==========================================================
+btnStart.addEventListener("click", async () => {
+  setStatus("Meminta akses kamera…", "");
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: 640, height: 480, facingMode: "user" },
+      audio: false
+    });
+    video.srcObject = stream;
+    await video.play();
+    startSuccess(false);
+  } catch (err) {
+    // fallback: simulation mode
+    console.warn("Kamera tidak bisa diakses, masuk mode simulasi:", err.message);
+    startSuccess(true);
+  }
+});
+
+function startSuccess(sim) {
+  simMode = sim;
+  isRunning = true;
+  noCam.classList.add("hidden");
+  simTag.style.display = sim ? "block" : "none";
+  btnStart.disabled = true;
+  btnStop.disabled = false;
+  camSweep.style.animationPlayState = "running";
+  setStatus("Mendeteksi…", "active");
+
+  if (sim) {
+    intervalId = setInterval(simulateFrame, SIM_INTERVAL_MS);
+  } else {
+    intervalId = setInterval(sendFrame, CAPTURE_INTERVAL_MS);
+  }
+
+  // FPS counter
+  setInterval(() => {
+    const now = Date.now();
+    const elapsed = (now - fpsLast) / 1000;
+    if (elapsed > 0) camFpsPill.textContent = Math.round(fpsCounter / elapsed) + " fps";
+    fpsCounter = 0;
+    fpsLast = now;
+  }, 2000);
+}
+
+// ==========================================================
+// STOP
+// ==========================================================
+btnStop.addEventListener("click", () => {
+  isRunning = false;
+  clearInterval(intervalId);
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  video.srcObject = null;
+  noCam.classList.remove("hidden");
+  simTag.style.display = "none";
+  camSweep.style.animationPlayState = "paused";
+  btnStart.disabled = false;
+  btnStop.disabled = true;
+  setStatus("Kamera dihentikan", "");
+  camFpsPill.textContent = "– fps";
+  resetResult();
+});
+
+// ==========================================================
+// SEND FRAME TO BACKEND
+// ==========================================================
+async function sendFrame() {
+  if (!isRunning || isPredicting || video.videoWidth === 0) return;
+  isPredicting = true;
+
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0);
+  const base64 = canvas.toDataURL("image/jpeg", 0.7).split(",")[1];
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: base64, mode: currentMode })
+    });
+    if (!res.ok) {
+      const e = await res.json();
+      setStatus("Error: " + (e.detail || "Unknown"), "error");
+      return;
+    }
+    const data = await res.json();
+    applyResult(data.result || "–", data.confidence ?? 0);
+    fpsCounter++;
+  } catch (err) {
+    setStatus("Tidak bisa konek ke backend", "error");
+  } finally {
+    isPredicting = false;
+  }
+}
+
+// ==========================================================
+// SIMULATION (fallback when no camera / no backend)
+// ==========================================================
+const simLetters = ["A","B","C","D","E","S","I","K","A","T"];
+const simKata = ["saya","makan","mandi","tidur","berdoa"];
+let simIdx = 0;
+
+function simulateFrame() {
+  if (!isRunning) return;
+  const pool = currentMode === "kata" ? simKata
+             : currentMode === "angka" ? ["1","2","3","4","5","6","7","8","9","0"]
+             : simLetters;
+  const pred = pool[simIdx % pool.length];
+  const conf = (70 + Math.random() * 28).toFixed(1);
+  simIdx++;
+  applyResult(pred, parseFloat(conf));
+  fpsCounter++;
+}
+
+// ==========================================================
+// APPLY RESULT
+// ==========================================================
+function applyResult(pred, confidence) {
+  displayRes.textContent = pred;
+  const confPct = confidence + "%";
+  displayConf.textContent = confPct;
+  confBar.style.width = confidence + "%";
+  setStatus("Mendeteksi…", "active");
+
+  // Auto-add to text & history if new prediction
+  const now = Date.now();
+  if (pred !== "–" && pred !== lastPred && (now - lastAddTime) > 1500) {
+    addToHistory(pred);
+    addToText(pred);
+    lastPred = pred;
+    lastAddTime = now;
+  }
+}
+
+function resetResult() {
+  displayRes.textContent = "–";
+  displayConf.textContent = "–";
+  confBar.style.width = "0%";
+  lastPred = null;
+}
+
+// ==========================================================
+// TEXT BUILDER
+// ==========================================================
+function addToText(char) {
+  builtText += char;
+  renderText();
+}
+
+function renderText() {
+  builtTextEl.textContent = builtText || "\u00a0";
+}
+
+document.getElementById("btn-add-space").addEventListener("click", () => {
+  builtText += " ";
+  renderText();
+});
+
+document.getElementById("btn-clear-text").addEventListener("click", () => {
+  builtText = "";
+  renderText();
+});
+
+document.getElementById("btn-copy-text").addEventListener("click", () => {
+  if (builtText.trim()) {
+    navigator.clipboard.writeText(builtText).then(() => {
+      const btn = document.getElementById("btn-copy-text");
+      btn.textContent = "✓ Disalin";
+      setTimeout(() => btn.textContent = "Salin", 1500);
+    });
+  }
+});
+
+// ==========================================================
+// HISTORY
+// ==========================================================
+function addToHistory(pred) {
+  histItems.unshift(pred);
+  if (histItems.length > 20) histItems.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  if (histItems.length === 0) {
+    histListEl.innerHTML = '<span style="font-size:13px;color:var(--text-light);margin-top:4px;">Belum ada deteksi</span>';
+    return;
+  }
+  histListEl.innerHTML = histItems.map(h =>
+    `<span class="hist-chip">${h}</span>`
+  ).join("");
+}
+
+document.getElementById("btn-clear-hist").addEventListener("click", () => {
+  histItems = [];
+  renderHistory();
+});
+
+// ==========================================================
+// STATUS HELPER
+// ==========================================================
+function setStatus(text, type) {
+  displayStat.textContent = text;
+  statusDot.className = "status-dot";
+  if (type) statusDot.classList.add(type);
+}
+
+// init
+updateGuideBlocks(currentMode);
+</script>
+</body>
+</html>

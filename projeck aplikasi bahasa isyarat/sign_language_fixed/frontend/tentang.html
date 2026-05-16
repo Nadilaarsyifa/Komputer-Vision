@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignLens — Tentang Proyek</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── HERO ABOUT ── */
+    .about-hero {
+      background: var(--dark-2);
+      border-bottom: 1px solid var(--dark-3);
+      padding: 72px 5vw 64px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-hero-glow {
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .about-hero-glow2 {
+      position: absolute;
+      bottom: -100px; left: -60px;
+      width: 360px; height: 360px;
+      background: radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .about-hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .about-hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.25);
+      color: var(--green-400);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 22px;
+    }
+
+    .about-hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 62px);
+      font-weight: 800;
+      line-height: 1.08;
+      color: white;
+      margin-bottom: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .about-hero-title span { color: var(--green-400); }
+
+    .about-hero-desc {
+      font-size: 16px;
+      color: #6b9a74;
+      line-height: 1.75;
+      max-width: 600px;
+    }
+
+    /* ── STATS SECTION ── */
+    .stats-section {
+      padding: 72px 5vw;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.22s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--green-400), var(--green-600));
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .stat-card-icon {
+      font-size: 28px;
+      margin-bottom: 14px;
+    }
+
+    .stat-card-num {
+      font-family: var(--font-display);
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--green-600);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-card-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .stat-card-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* progress bar in stat cards */
+    .stat-card-bar {
+      margin-top: 14px;
+    }
+    .stat-card-bar-fill {
+      height: 5px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--green-400), var(--green-600));
+    }
+
+    /* ── TECH STACK ── */
+    .tech-section {
+      background: var(--dark-2);
+      border-top: 1px solid var(--dark-3);
+      border-bottom: 1px solid var(--dark-3);
+      padding: 72px 5vw;
+    }
+
+    .tech-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .tech-card {
+      background: var(--dark-3);
+      border: 1px solid rgba(34,197,94,0.1);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: border-color 0.2s;
+    }
+
+    .tech-card:hover { border-color: rgba(34,197,94,0.3); }
+
+    .tech-card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .tech-card-icon {
+      width: 44px; height: 44px;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .tech-card-name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      color: white;
+    }
+
+    .tech-card-type {
+      font-size: 12px;
+      color: var(--green-400);
+      font-weight: 500;
+    }
+
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tech-tag {
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.15);
+      color: #a0c4a8;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 13px;
+      border-radius: 999px;
+    }
+
+    .tech-card-desc {
+      font-size: 13px;
+      color: #6b9a74;
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    /* ── TEAM ── */
+    .team-section {
+      padding: 72px 5vw;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 22px;
+      margin-top: 40px;
+    }
+
+    .team-card {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.22s;
+    }
+
+    .team-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+    }
+
+    .team-avatar {
+      width: 76px; height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green-400), var(--green-700));
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      color: white;
+      border: 3px solid var(--green-200);
+    }
+
+    .team-name {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .team-role {
+      font-size: 13px;
+      color: var(--green-600);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .team-univ {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .team-links {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .team-link {
+      background: var(--green-50);
+      border: 1.5px solid var(--green-200);
+      color: var(--green-700);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 999px;
+      text-decoration: none;
+      transition: all 0.18s;
+    }
+    .team-link:hover {
+      background: var(--green-600);
+      color: white;
+      border-color: var(--green-600);
+    }
+
+    /* ── ABOUT TEXT BLOCK ── */
+    .about-text-section {
+      padding: 72px 5vw;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .about-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 40px;
+      align-items: start;
+    }
+
+    .about-prose {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    .about-prose p { margin-bottom: 16px; }
+
+    .about-ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .about-ul li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .about-ul li::before {
+      content: '▶';
+      color: var(--green-500);
+      font-size: 10px;
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+
+    /* github banner */
+    .github-banner {
+      background: var(--dark-2);
+      border: 1px solid var(--dark-3);
+      border-radius: var(--radius-lg);
+      padding: 28px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .github-banner-left { display: flex; align-items: center; gap: 16px; }
+    .github-icon { font-size: 36px; }
+    .github-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: white; margin-bottom: 4px; }
+    .github-sub { font-size: 13px; color: #6b9a74; }
+
+    @media (max-width: 860px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .tech-grid { grid-template-columns: 1fr; }
+      .about-cols { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-dot"></div>
+    SignLens
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Beranda</a></li>
+    <li><a href="deteksi.html">Deteksi</a></li>
+    <li><a href="tentang.html" class="active">Tentang</a></li>
+  </ul>
+  <a href="deteksi.html" class="btn btn-primary" style="font-size:13px; padding:10px 20px;">Mulai Deteksi →</a>
+</nav>
+
+<!-- HERO -->
+<div class="about-hero">
+  <div class="about-hero-glow"></div>
+  <div class="about-hero-glow2"></div>
+  <div class="about-hero-inner">
+    <div class="about-hero-tag">📄 Tentang Proyek</div>
+    <h1 class="about-hero-title">
+      Mengenalkan <span>BISINDO</span><br>ke Dunia Digital
+    </h1>
+    <p class="about-hero-desc">
+      SignLens adalah sistem pengenalan bahasa isyarat Indonesia (BISINDO) berbasis computer vision dan machine learning, dikembangkan sebagai proyek tugas akhir.
+    </p>
+  </div>
+</div>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="section-label">Performa Model</div>
+  <h2 class="section-title">Statistik & Akurasi</h2>
+  <p class="section-sub">Hasil evaluasi model yang dilatih dari dataset gesture tangan BISINDO.</p>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-card-icon">🎯</div>
+      <div class="stat-card-num">92%</div>
+      <div class="stat-card-label">Akurasi Huruf (A–Z)</div>
+      <div class="stat-card-sub">Model Random Forest dilatih dengan fitur hand landmark 46 dimensi per tangan.</div>
+      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:92%"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon">🔢</div>
+      <div class="stat-card-num">95%</div>
+      <div class="stat-card-label">Akurasi Angka (0–9)</div>
+      <div class="stat-card-sub">Model XGBoost dengan normalisasi koordinat tangan, sangat stabil pada angka statis.</div>
+      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:95%"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon">💬</div>
+      <div class="stat-card-num">88%</div>
+      <div class="stat-card-label">Akurasi Kata (7 kata)</div>
+      <div class="stat-card-sub">MLP Classifier dengan 129 fitur dari tangan, wajah, dan pose tubuh melalui MediaPipe Holistic.</div>
+      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:88%"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon">⚡</div>
+      <div class="stat-card-num">~2fps</div>
+      <div class="stat-card-label">Kecepatan Deteksi</div>
+      <div class="stat-card-sub">Interval pengiriman frame 500ms, seimbang antara akurasi dan responsivitas.</div>
+      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:40%"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon">🖐</div>
+      <div class="stat-card-num">36+</div>
+      <div class="stat-card-label">Total Kelas</div>
+      <div class="stat-card-sub">26 huruf + 10 angka + 7 kata = lebih dari 36 kelas gesture berbeda yang dikenali.</div>
+      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:72%"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon">📐</div>
+      <div class="stat-card-num">129</div>
+      <div class="stat-card-label">Dimensi Fitur (Kata)</div>
+      <div class="stat-card-sub">Fitur landmark dari kedua tangan, wajah, pose, dan cross-features jarak tangan–wajah.</div>
+      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:100%"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<div class="tech-section">
+  <div class="tech-inner">
+    <div class="section-label" style="color:var(--green-400);">Teknologi</div>
+    <h2 class="section-title" style="color:white;">Tech Stack</h2>
+    <p class="section-sub" style="color:#6b9a74;">Tumpukan teknologi yang digunakan dalam membangun sistem ini dari ujung ke ujung.</p>
+
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-card-header">
+          <div class="tech-card-icon">🐍</div>
+          <div>
+            <div class="tech-card-name">Backend & ML</div>
+            <div class="tech-card-type">Python / FastAPI</div>
+          </div>
+        </div>
+        <div class="tech-card-desc">
+          REST API dibangun dengan FastAPI, menerima frame gambar dan mengembalikan prediksi secara real-time. Model ML di-load menggunakan joblib.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">FastAPI</span>
+          <span class="tech-tag">scikit-learn</span>
+          <span class="tech-tag">XGBoost</span>
+          <span class="tech-tag">joblib</span>
+          <span class="tech-tag">OpenCV</span>
+          <span class="tech-tag">NumPy</span>
+        </div>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-card-header">
+          <div class="tech-card-icon">👁️</div>
+          <div>
+            <div class="tech-card-name">Computer Vision</div>
+            <div class="tech-card-type">MediaPipe</div>
+          </div>
+        </div>
+        <div class="tech-card-desc">
+          Ekstraksi landmark tangan menggunakan MediaPipe Hands (huruf & angka) dan MediaPipe Holistic (kata: tangan + wajah + pose).
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">MediaPipe Hands</span>
+          <span class="tech-tag">MediaPipe Holistic</span>
+          <span class="tech-tag">21 Hand Landmarks</span>
+          <span class="tech-tag">468 Face Points</span>
+        </div>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-card-header">
+          <div class="tech-card-icon">🤖</div>
+          <div>
+            <div class="tech-card-name">Machine Learning</div>
+            <div class="tech-card-type">Model Klasifikasi</div>
+          </div>
+        </div>
+        <div class="tech-card-desc">
+          Tiga model terpisah untuk tiga mode deteksi: Random Forest (huruf), XGBoost (angka), dan MLP Classifier (kata) dengan label encoder dan scaler.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">Random Forest</span>
+          <span class="tech-tag">XGBoost</span>
+          <span class="tech-tag">MLP Classifier</span>
+          <span class="tech-tag">Label Encoding</span>
+          <span class="tech-tag">StandardScaler</span>
+        </div>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-card-header">
+          <div class="tech-card-icon">🌐</div>
+          <div>
+            <div class="tech-card-name">Frontend</div>
+            <div class="tech-card-type">HTML / CSS / JS</div>
+          </div>
+        </div>
+        <div class="tech-card-desc">
+          Antarmuka web murni tanpa framework berat. Mengambil frame kamera secara periodik, mengirim ke backend via Fetch API, dan menampilkan hasil secara langsung.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">Vanilla JS</span>
+          <span class="tech-tag">Fetch API</span>
+          <span class="tech-tag">MediaDevices</span>
+          <span class="tech-tag">Canvas API</span>
+          <span class="tech-tag">CSS Grid</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT TEXT -->
+<section class="about-text-section">
+  <div class="section-label">Latar Belakang</div>
+  <h2 class="section-title">Tentang Proyek Ini</h2>
+
+  <div class="about-cols">
+    <div>
+      <div class="about-prose">
+        <p>
+          SignLens lahir dari keprihatinan akan kurangnya aksesibilitas digital bagi komunitas Tuli di Indonesia. Bahasa Isyarat Indonesia (BISINDO) adalah bahasa utama komunitas Tuli, namun masih sangat sedikit sistem teknologi yang mendukungnya.
+        </p>
+        <p>
+          Proyek ini mengembangkan sistem pengenalan BISINDO berbasis kamera web yang dapat berjalan langsung di browser tanpa perlu instalasi aplikasi. Dengan memanfaatkan computer vision dan machine learning, tangan pengguna dianalisis secara real-time untuk diidentifikasi sebagai huruf, angka, atau kata.
+        </p>
+        <p>
+          Tiga mode deteksi tersedia: huruf A–Z menggunakan kedua tangan, angka 0–9, dan 7 kata menggunakan analisis tangan + wajah + pose tubuh secara holistik.
+        </p>
+      </div>
+    </div>
+
+    <div>
+      <ul class="about-ul">
+        <li>Deteksi berbasis landmark bukan gambar mentah — lebih ringan dan privasi-friendly</li>
+        <li>Tiga mode deteksi: huruf, angka, dan kata dengan model ML terpisah</li>
+        <li>Smoothing prediksi menggunakan sliding window (deque) untuk hasil yang stabil</li>
+        <li>Threshold confidence 50% — prediksi dengan keyakinan rendah diabaikan</li>
+        <li>Fallback simulasi otomatis jika kamera atau backend tidak tersedia</li>
+        <li>Panduan gesture visual tersedia langsung di dalam aplikasi</li>
+        <li>Teks terbentuk otomatis dari kumpulan huruf/kata yang terdeteksi</li>
+        <li>Backend FastAPI mudah di-extend untuk mendukung lebih banyak kelas</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team-section" style="padding-top:0;">
+  <div class="section-label">Tim Pengembang</div>
+  <h2 class="section-title">Developer & Tim</h2>
+  <p class="section-sub">Sesuaikan nama, peran, dan universitas tim kamu di bawah ini.</p>
+
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-avatar">AN</div>
+      <div class="team-name">Nama Developer</div>
+      <div class="team-role">Lead Developer & ML Engineer</div>
+      <div class="team-univ">Universitas Kamu · Informatika 2021</div>
+      <div class="team-links">
+        <a href="#" class="team-link">GitHub</a>
+        <a href="#" class="team-link">LinkedIn</a>
+      </div>
+    </div>
+
+    <!-- Tambahkan anggota tim lain di sini jika ada -->
+    <!-- 
+    <div class="team-card">
+      <div class="team-avatar">AB</div>
+      <div class="team-name">Nama Anggota 2</div>
+      <div class="team-role">Dataset & Model Training</div>
+      <div class="team-univ">Universitas Kamu · Informatika 2021</div>
+      <div class="team-links">
+        <a href="#" class="team-link">GitHub</a>
+      </div>
+    </div>
+    -->
+  </div>
+
+  <!-- GitHub Banner -->
+  <div class="github-banner" style="margin-top:32px;">
+    <div class="github-banner-left">
+      <div class="github-icon">🐙</div>
+      <div>
+        <div class="github-title">Source Code Repository</div>
+        <div class="github-sub">Lihat kode lengkap proyek SignLens di GitHub</div>
+      </div>
+    </div>
+    <a href="https://github.com/username/sign-language-bisindo" target="_blank" class="btn btn-primary" style="flex-shrink:0;">
+      Buka GitHub →
+    </a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 SignLens · Proyek Tugas Akhir Pengenalan Bahasa Isyarat BISINDO · <a href="index.html">Beranda</a> · <a href="deteksi.html">Deteksi</a></p>
+</footer>
+
+</body>
+</html>
