@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+   <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     /* ── HERO ABOUT ── */
     .about-hero {
@@ -416,244 +418,373 @@
 <div class="about-hero">
   <div class="about-hero-glow"></div>
   <div class="about-hero-glow2"></div>
+
   <div class="about-hero-inner">
     <div class="about-hero-tag">📄 Tentang Proyek</div>
+
     <h1 class="about-hero-title">
-      Mengenalkan <span>BISINDO</span><br>ke Dunia Digital
+      Sistem Pengenalan<br>
+      <span>Bahasa Isyarat</span>
     </h1>
+
     <p class="about-hero-desc">
-      SignLens adalah sistem pengenalan bahasa isyarat Indonesia (BISINDO) berbasis computer vision dan machine learning, dikembangkan sebagai proyek tugas akhir.
+      SignLens merupakan sistem pengenalan gesture bahasa isyarat Indonesia berbasis computer vision dan machine learning yang dikembangkan sebagai project pembelajaran mata kuliah Computer Vision dan Machine Learning.
     </p>
   </div>
 </div>
 
 <!-- STATS -->
 <section class="stats-section">
+
   <div class="section-label">Performa Model</div>
-  <h2 class="section-title">Statistik & Akurasi</h2>
-  <p class="section-sub">Hasil evaluasi model yang dilatih dari dataset gesture tangan BISINDO.</p>
+
+  <h2 class="section-title">
+    Statistik & Akurasi
+  </h2>
+
+  <p class="section-sub">
+    Hasil evaluasi model pengenalan gesture bahasa isyarat berbasis machine learning dan ekstraksi landmark MediaPipe.
+  </p>
 
   <div class="stats-grid">
+
+    <!-- Huruf -->
     <div class="stat-card">
-      <div class="stat-card-icon">🎯</div>
-      <div class="stat-card-num">92%</div>
-      <div class="stat-card-label">Akurasi Huruf (A–Z)</div>
-      <div class="stat-card-sub">Model Random Forest dilatih dengan fitur hand landmark 46 dimensi per tangan.</div>
-      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:92%"></div></div>
+      <div class="stat-card-icon">
+        <i class="bi bi-type"></i>
+      </div>
+
+      <div class="stat-card-num">97.99%</div>
+
+      <div class="stat-card-label">
+        Akurasi Huruf (A–Z)
+      </div>
+
+      <div class="stat-card-sub">
+        Model XGBoost dilatih menggunakan 19.447 data gesture huruf dengan 92 fitur landmark tangan.
+      </div>
+
+      <div class="stat-card-bar">
+        <div class="stat-card-bar-fill" style="width:97.99%"></div>
+      </div>
     </div>
+
+    <!-- Angka -->
     <div class="stat-card">
-      <div class="stat-card-icon">🔢</div>
-      <div class="stat-card-num">95%</div>
-      <div class="stat-card-label">Akurasi Angka (0–9)</div>
-      <div class="stat-card-sub">Model XGBoost dengan normalisasi koordinat tangan, sangat stabil pada angka statis.</div>
-      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:95%"></div></div>
+      <div class="stat-card-icon">
+        <i class="bi bi-123"></i>
+      </div>
+
+      <div class="stat-card-num">99.74%</div>
+
+      <div class="stat-card-label">
+        Akurasi Angka (0–9)
+      </div>
+
+      <div class="stat-card-sub">
+        Model XGBoost dilatih menggunakan 3.800 data gesture angka dengan 46 fitur landmark tangan.
+      </div>
+
+      <div class="stat-card-bar">
+        <div class="stat-card-bar-fill" style="width:99.74%"></div>
+      </div>
     </div>
+
+    <!-- Kata -->
     <div class="stat-card">
-      <div class="stat-card-icon">💬</div>
-      <div class="stat-card-num">88%</div>
-      <div class="stat-card-label">Akurasi Kata (7 kata)</div>
-      <div class="stat-card-sub">MLP Classifier dengan 129 fitur dari tangan, wajah, dan pose tubuh melalui MediaPipe Holistic.</div>
-      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:88%"></div></div>
+      <div class="stat-card-icon">
+        <i class="bi bi-chat-dots"></i>
+      </div>
+
+      <div class="stat-card-num">98.67%</div>
+
+      <div class="stat-card-label">
+        Akurasi Gesture Kata
+      </div>
+
+      <div class="stat-card-sub">
+        Model MLP mengenali 30 gesture kata menggunakan fitur landmark tangan, pose tubuh, dan wajah.
+      </div>
+
+      <div class="stat-card-bar">
+        <div class="stat-card-bar-fill" style="width:98.67%"></div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-card-icon">⚡</div>
-      <div class="stat-card-num">~2fps</div>
-      <div class="stat-card-label">Kecepatan Deteksi</div>
-      <div class="stat-card-sub">Interval pengiriman frame 500ms, seimbang antara akurasi dan responsivitas.</div>
-      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:40%"></div></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-card-icon">🖐</div>
-      <div class="stat-card-num">36+</div>
-      <div class="stat-card-label">Total Kelas</div>
-      <div class="stat-card-sub">26 huruf + 10 angka + 7 kata = lebih dari 36 kelas gesture berbeda yang dikenali.</div>
-      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:72%"></div></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-card-icon">📐</div>
-      <div class="stat-card-num">129</div>
-      <div class="stat-card-label">Dimensi Fitur (Kata)</div>
-      <div class="stat-card-sub">Fitur landmark dari kedua tangan, wajah, pose, dan cross-features jarak tangan–wajah.</div>
-      <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:100%"></div></div>
-    </div>
+
+
+  <!-- Landmark -->
+<div class="stat-card">
+  <div class="stat-card-icon">
+    <i class="bi bi-diagram-3"></i>
+  </div>
+
+  <div class="stat-card-num">46–129</div>
+
+  <div class="stat-card-label">
+    Dimensi Fitur Gesture
+  </div>
+
+  <div class="stat-card-sub">
+    Sistem menggunakan fitur landmark tangan, pose tubuh, wajah, dan relasi antar titik gesture sesuai mode deteksi.
+  </div>
+
+  <div class="stat-card-bar">
+    <div class="stat-card-bar-fill" style="width:100%"></div>
+  </div>
+</div>
+
+
   </div>
 </section>
 
 <!-- TECH STACK -->
 <div class="tech-section">
+
   <div class="tech-inner">
-    <div class="section-label" style="color:var(--green-400);">Teknologi</div>
-    <h2 class="section-title" style="color:white;">Tech Stack</h2>
-    <p class="section-sub" style="color:#6b9a74;">Tumpukan teknologi yang digunakan dalam membangun sistem ini dari ujung ke ujung.</p>
+
+    <div class="section-label" style="color:var(--green-400);">
+      Teknologi
+    </div>
+
+    <h2 class="section-title" style="color:white;">
+      Tech Stack
+    </h2>
+
+    <p class="section-sub" style="color:#6b9a74;">
+      Teknologi yang digunakan dalam membangun sistem pengenalan gesture bahasa isyarat berbasis computer vision dan machine learning.
+    </p>
 
     <div class="tech-grid">
+
+      <!-- Backend -->
       <div class="tech-card">
+
         <div class="tech-card-header">
-          <div class="tech-card-icon">🐍</div>
+          <div class="tech-card-icon">
+            <i class="bi bi-server"></i>
+          </div>
+
           <div>
-            <div class="tech-card-name">Backend & ML</div>
+            <div class="tech-card-name">Backend & API</div>
             <div class="tech-card-type">Python / FastAPI</div>
           </div>
         </div>
+
         <div class="tech-card-desc">
-          REST API dibangun dengan FastAPI, menerima frame gambar dan mengembalikan prediksi secara real-time. Model ML di-load menggunakan joblib.
+          Backend dibangun menggunakan FastAPI untuk menerima frame kamera, memproses prediksi model, dan mengirim hasil deteksi secara real-time.
         </div>
+
         <div class="tech-tags">
           <span class="tech-tag">FastAPI</span>
-          <span class="tech-tag">scikit-learn</span>
-          <span class="tech-tag">XGBoost</span>
+          <span class="tech-tag">Python</span>
           <span class="tech-tag">joblib</span>
-          <span class="tech-tag">OpenCV</span>
           <span class="tech-tag">NumPy</span>
+          <span class="tech-tag">OpenCV</span>
         </div>
+
       </div>
 
+      <!-- Computer Vision -->
       <div class="tech-card">
+
         <div class="tech-card-header">
-          <div class="tech-card-icon">👁️</div>
+          <div class="tech-card-icon">
+            <i class="bi bi-camera"></i>
+          </div>
+
           <div>
             <div class="tech-card-name">Computer Vision</div>
             <div class="tech-card-type">MediaPipe</div>
           </div>
         </div>
+
         <div class="tech-card-desc">
-          Ekstraksi landmark tangan menggunakan MediaPipe Hands (huruf & angka) dan MediaPipe Holistic (kata: tangan + wajah + pose).
+          MediaPipe digunakan untuk ekstraksi landmark tangan, pose tubuh, dan wajah sebagai fitur utama sistem pengenalan gesture.
         </div>
+
         <div class="tech-tags">
           <span class="tech-tag">MediaPipe Hands</span>
           <span class="tech-tag">MediaPipe Holistic</span>
-          <span class="tech-tag">21 Hand Landmarks</span>
-          <span class="tech-tag">468 Face Points</span>
+          <span class="tech-tag">Hand Landmark</span>
+          <span class="tech-tag">Pose Landmark</span>
+          <span class="tech-tag">Face Landmark</span>
         </div>
+
       </div>
 
+      <!-- Machine Learning -->
       <div class="tech-card">
+
         <div class="tech-card-header">
-          <div class="tech-card-icon">🤖</div>
+          <div class="tech-card-icon">
+            <i class="bi bi-cpu"></i>
+          </div>
+
           <div>
             <div class="tech-card-name">Machine Learning</div>
             <div class="tech-card-type">Model Klasifikasi</div>
           </div>
         </div>
+
         <div class="tech-card-desc">
-          Tiga model terpisah untuk tiga mode deteksi: Random Forest (huruf), XGBoost (angka), dan MLP Classifier (kata) dengan label encoder dan scaler.
+          Sistem menggunakan model XGBoost untuk deteksi huruf dan angka, serta MLP Classifier untuk pengenalan gesture kata.
         </div>
+
         <div class="tech-tags">
-          <span class="tech-tag">Random Forest</span>
           <span class="tech-tag">XGBoost</span>
           <span class="tech-tag">MLP Classifier</span>
-          <span class="tech-tag">Label Encoding</span>
+          <span class="tech-tag">scikit-learn</span>
+          <span class="tech-tag">Label Encoder</span>
           <span class="tech-tag">StandardScaler</span>
         </div>
+
       </div>
 
+      <!-- Frontend -->
       <div class="tech-card">
+
         <div class="tech-card-header">
-          <div class="tech-card-icon">🌐</div>
+          <div class="tech-card-icon">
+            <i class="bi bi-window"></i>
+          </div>
+
           <div>
             <div class="tech-card-name">Frontend</div>
-            <div class="tech-card-type">HTML / CSS / JS</div>
+            <div class="tech-card-type">HTML / CSS / JavaScript</div>
           </div>
         </div>
+
         <div class="tech-card-desc">
-          Antarmuka web murni tanpa framework berat. Mengambil frame kamera secara periodik, mengirim ke backend via Fetch API, dan menampilkan hasil secara langsung.
+          Antarmuka web dibuat menggunakan HTML, CSS, dan JavaScript untuk menampilkan kamera, mode deteksi, dan hasil prediksi secara langsung.
         </div>
+
         <div class="tech-tags">
+          <span class="tech-tag">HTML</span>
+          <span class="tech-tag">CSS</span>
           <span class="tech-tag">Vanilla JS</span>
           <span class="tech-tag">Fetch API</span>
-          <span class="tech-tag">MediaDevices</span>
           <span class="tech-tag">Canvas API</span>
-          <span class="tech-tag">CSS Grid</span>
         </div>
+
       </div>
+
     </div>
   </div>
 </div>
 
 <!-- ABOUT TEXT -->
 <section class="about-text-section">
-  <div class="section-label">Latar Belakang</div>
-  <h2 class="section-title">Tentang Proyek Ini</h2>
+
+  <div class="section-label">
+    Latar Belakang
+  </div>
+
+  <h2 class="section-title">
+    Tentang Proyek Ini
+  </h2>
 
   <div class="about-cols">
+
+    <!-- LEFT -->
     <div>
+
       <div class="about-prose">
+
         <p>
-          SignLens lahir dari keprihatinan akan kurangnya aksesibilitas digital bagi komunitas Tuli di Indonesia. Bahasa Isyarat Indonesia (BISINDO) adalah bahasa utama komunitas Tuli, namun masih sangat sedikit sistem teknologi yang mendukungnya.
+          SignLens merupakan sistem pengenalan gesture bahasa isyarat Indonesia berbasis computer vision dan machine learning yang dikembangkan sebagai project pembelajaran mata kuliah Computer Vision dan Machine Learning.
         </p>
         <p>
-          Proyek ini mengembangkan sistem pengenalan BISINDO berbasis kamera web yang dapat berjalan langsung di browser tanpa perlu instalasi aplikasi. Dengan memanfaatkan computer vision dan machine learning, tangan pengguna dianalisis secara real-time untuk diidentifikasi sebagai huruf, angka, atau kata.
+          Sistem memanfaatkan kamera web untuk mendeteksi gesture secara real-time melalui browser.
         </p>
+
         <p>
-          Tiga mode deteksi tersedia: huruf A–Z menggunakan kedua tangan, angka 0–9, dan 7 kata menggunakan analisis tangan + wajah + pose tubuh secara holistik.
+          Project ini dirancang sebagai implementasi teknologi AI berbasis gesture sekaligus eksplorasi penerapan computer vision dalam interaksi manusia dan komputer.
         </p>
+
       </div>
+
     </div>
 
+    <!-- RIGHT -->
     <div>
+
       <ul class="about-ul">
-        <li>Deteksi berbasis landmark bukan gambar mentah — lebih ringan dan privasi-friendly</li>
-        <li>Tiga mode deteksi: huruf, angka, dan kata dengan model ML terpisah</li>
-        <li>Smoothing prediksi menggunakan sliding window (deque) untuk hasil yang stabil</li>
-        <li>Threshold confidence 50% — prediksi dengan keyakinan rendah diabaikan</li>
-        <li>Fallback simulasi otomatis jika kamera atau backend tidak tersedia</li>
-        <li>Panduan gesture visual tersedia langsung di dalam aplikasi</li>
-        <li>Teks terbentuk otomatis dari kumpulan huruf/kata yang terdeteksi</li>
-        <li>Backend FastAPI mudah di-extend untuk mendukung lebih banyak kelas</li>
+
+        <li>
+          Menggunakan pendekatan landmark sehingga proses deteksi lebih ringan dibanding pengolahan citra mentah
+        </li>
+
+        <li>
+          Menggabungkan teknologi computer vision dan machine learning dalam satu sistem terintegrasi
+        </li>
+
+        <li>
+          Antarmuka dirancang sederhana, responsif, dan mudah digunakan
+        </li>
+
+        <li>
+          Prediksi gesture ditampilkan secara langsung melalui kamera web
+        </li>
+
+        <li>
+          Sistem dirancang agar mudah dikembangkan untuk penambahan gesture baru
+        </li>
+
       </ul>
+
     </div>
+
   </div>
+
 </section>
 
-<!-- TEAM -->
+<!-- DEVELOPER -->
 <section class="team-section" style="padding-top:0;">
-  <div class="section-label">Tim Pengembang</div>
-  <h2 class="section-title">Developer & Tim</h2>
-  <p class="section-sub">Sesuaikan nama, peran, dan universitas tim kamu di bawah ini.</p>
+
+  <div class="section-label">
+    Pengembang
+  </div>
+
+  <h2 class="section-title">
+    Developer
+  </h2>
+
+  <p class="section-sub">
+    SignLens dikembangkan sebagai project pembelajaran computer vision dan machine learning.
+  </p>
 
   <div class="team-grid">
+
     <div class="team-card">
-      <div class="team-avatar">AN</div>
-      <div class="team-name">Nama Developer</div>
-      <div class="team-role">Lead Developer & ML Engineer</div>
-      <div class="team-univ">Universitas Kamu · Informatika 2021</div>
-      <div class="team-links">
-        <a href="#" class="team-link">GitHub</a>
-        <a href="#" class="team-link">LinkedIn</a>
+
+      <div class="team-avatar">
+        NA
       </div>
+
+      <div class="team-name">
+        Nadila Arsyifa
+      </div>
+
+      <div class="team-role">
+        Prodi Teknik informatika
+      </div>
+
+      <div class="team-univ">
+        Politeknik Negeri Lhokseumawe
+      </div>
+
     </div>
 
-    <!-- Tambahkan anggota tim lain di sini jika ada -->
-    <!-- 
-    <div class="team-card">
-      <div class="team-avatar">AB</div>
-      <div class="team-name">Nama Anggota 2</div>
-      <div class="team-role">Dataset & Model Training</div>
-      <div class="team-univ">Universitas Kamu · Informatika 2021</div>
-      <div class="team-links">
-        <a href="#" class="team-link">GitHub</a>
-      </div>
-    </div>
-    -->
   </div>
 
-  <!-- GitHub Banner -->
-  <div class="github-banner" style="margin-top:32px;">
-    <div class="github-banner-left">
-      <div class="github-icon">🐙</div>
-      <div>
-        <div class="github-title">Source Code Repository</div>
-        <div class="github-sub">Lihat kode lengkap proyek SignLens di GitHub</div>
-      </div>
-    </div>
-    <a href="https://github.com/username/sign-language-bisindo" target="_blank" class="btn btn-primary" style="flex-shrink:0;">
-      Buka GitHub →
-    </a>
-  </div>
 </section>
 
 <footer>
-  <p>© 2025 SignLens · Proyek Tugas Akhir Pengenalan Bahasa Isyarat BISINDO · <a href="index.html">Beranda</a> · <a href="deteksi.html">Deteksi</a></p>
+  <p>
+    SignLens © 2026 · Built with Computer Vision & Machine Learning · Nadila Arsyifa ·
+    <a href="index.html">Beranda</a> ·
+    <a href="deteksi.html">Deteksi</a>
+  </p>
 </footer>
 
 </body>

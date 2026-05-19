@@ -321,3 +321,48 @@ footer a:hover { text-decoration: underline; }
   .nav-links { display: none; }
   .section { padding: 52px 4vw; }
 }
+
+/* ===== Statistik 4 Card Horizontal ===== */
+
+.stats-grid{
+  display:grid !important;
+  grid-template-columns:repeat(4,1fr) !important;
+  gap:16px !important;
+}
+
+.stat-card{
+  padding:22px 18px !important;
+}
+
+.stat-card-icon{
+  font-size:22px !important;
+}
+
+.stat-card-num{
+  font-size:34px !important;
+}
+
+.stat-card-label{
+  font-size:14px !important;
+}
+
+.stat-card-sub{
+  font-size:12px !important;
+  line-height:1.5 !important;
+}
+
+/* Tablet */
+@media (max-width: 980px){
+  .stats-grid{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+}
+
+/* HP */
+@media (max-width: 560px){
+  .stats-grid{
+    grid-template-columns:1fr !important;
+  }
+}
+
+

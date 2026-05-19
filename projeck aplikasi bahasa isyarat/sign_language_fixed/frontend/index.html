@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     /* ── HERO ── */
     .hero {
@@ -417,7 +419,7 @@
         Deteksi Bahasa<br>Isyarat <span class="accent">Real-Time</span>
       </h1>
       <p class="hero-desc">
-        Sistem pengenalan bahasa isyarat BISINDO berbasis AI. Deteksi huruf, angka, dan kata secara otomatis langsung dari kamera dengan akurasi tinggi.
+      Sistem pengenalan gesture bahasa isyarat Indonesia berbasis computer vision dan machine learning untuk mendeteksi huruf, angka, dan kata secara otomatis melalui kamera.
       </p>
       <div class="hero-cta">
         <a href="deteksi.html" class="btn btn-primary">▶&nbsp; Mulai Deteksi</a>
@@ -434,7 +436,7 @@
           <div class="cam-corner bl"></div>
           <div class="cam-corner br"></div>
           <div class="cam-label">DETEKSI AKTIF</div>
-          <div class="cam-hand-icon">🖐</div>
+          <div class="cam-hand-icon"></div>
         </div>
         <div class="result-mock">
           <div class="result-mock-letter" id="demo-letter">A</div>
@@ -459,16 +461,16 @@
       <div class="stat-label">Mode Deteksi</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num">26+</div>
-      <div class="stat-label">Huruf & Angka</div>
+      <div class="stat-num">26</div>
+      <div class="stat-label">Huruf</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num">7</div>
-      <div class="stat-label">Kata Didukung</div>
+      <div class="stat-num">10</div>
+      <div class="stat-label">Angka</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num">~2 fps</div>
-      <div class="stat-label">Kecepatan Deteksi</div>
+      <div class="stat-num">30</div>
+      <div class="stat-label">Gesture Kata</div>
     </div>
   </div>
 </div>
@@ -477,32 +479,53 @@
 <section class="features">
   <div class="features-head">
     <div class="section-label">Fitur Utama</div>
-    <h2 class="section-title">Semua yang kamu butuhkan</h2>
-    <p class="section-sub" style="margin:0 auto; text-align:center;">Platform lengkap untuk pengenalan bahasa isyarat berbasis computer vision dan machine learning.</p>
+    <h2 class="section-title">Teknologi Deteksi Cerdas</h2>
+    <p class="section-sub" style="margin:0 auto; text-align:center;">Sistem pengenalan bahasa isyarat berbasis computer vision dan machine learning untuk mendeteksi gesture secara real-time melalui kamera.</p>
   </div>
 
   <div class="features-grid">
-    <div class="feat-card">
-      <div class="feat-icon">⚡</div>
-      <div class="feat-title">Real-Time Deteksi</div>
-      <div class="feat-desc">Analisis gerakan tangan secara langsung menggunakan MediaPipe + model ML yang dioptimasi.</div>
+
+  <div class="feat-card">
+    <div class="feat-icon">
+      <i class="bi bi-camera-video"></i>
     </div>
-    <div class="feat-card">
-      <div class="feat-icon">📚</div>
-      <div class="feat-title">Gesture Library</div>
-      <div class="feat-desc">Panduan visual lengkap untuk huruf A–Z, angka 0–9, dan 7 kata BISINDO beserta gambar referensi.</div>
-    </div>
-    <div class="feat-card">
-      <div class="feat-icon">📊</div>
-      <div class="feat-title">Confidence Score</div>
-      <div class="feat-desc">Setiap prediksi dilengkapi skor keyakinan model sehingga kamu tahu seberapa akurat hasilnya.</div>
-    </div>
-    <div class="feat-card">
-      <div class="feat-icon">🕐</div>
-      <div class="feat-title">Riwayat Deteksi</div>
-      <div class="feat-desc">Kumpulkan huruf/kata yang terdeteksi secara otomatis untuk membentuk kalimat lengkap.</div>
+    <div class="feat-title">Deteksi Real-Time</div>
+    <div class="feat-desc">
+      Analisis gesture tangan secara langsung menggunakan MediaPipe dan model machine learning yang dioptimalkan.
     </div>
   </div>
+
+  <div class="feat-card">
+    <div class="feat-icon">
+      <i class="bi bi-collection"></i>
+    </div>
+    <div class="feat-title">Gesture Library</div>
+    <div class="feat-desc">
+      Panduan visual huruf, angka, dan gesture kata lengkap sebagai referensi pembelajaran bahasa isyarat.
+    </div>
+  </div>
+
+  <div class="feat-card">
+    <div class="feat-icon">
+      <i class="bi bi-bar-chart"></i>
+    </div>
+    <div class="feat-title">Confidence Score</div>
+    <div class="feat-desc">
+      Setiap hasil prediksi dilengkapi tingkat keyakinan model untuk membantu validasi hasil deteksi.
+    </div>
+  </div>
+
+  <div class="feat-card">
+    <div class="feat-icon">
+      <i class="bi bi-arrow-repeat"></i>
+    </div>
+    <div class="feat-title">Mode Deteksi</div>
+    <div class="feat-desc">
+      Pergantian mode deteksi huruf, angka, dan kata dapat dilakukan secara cepat dan otomatis.
+    </div>
+  </div>
+
+</div>
 </section>
 
 <!-- CTA -->
@@ -519,7 +542,7 @@
 </section>
 
 <footer>
-  <p>© 2025 SignLens · Proyek Tugas Akhir Pengenalan Bahasa Isyarat BISINDO</p>
+  <p>SignLens © 2026 · Built with Computer Vision & Machine Learning · Nadila Arsyifa</p>
 </footer>
 
 <script>
