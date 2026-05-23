@@ -14,15 +14,19 @@
 /project recognition bahasa isyarat/dataset_kata_baru2/
 /project recognition bahasa isyarat/dataset_kata_baru3/
 /project recognition bahasa isyarat/dataset_kata_baru4/
-
+/project recognition bahasa isyarat/dataset_angka_video/
 # Model files
 /project recognition bahasa isyarat/model_kata.pkl
 /project recognition bahasa isyarat/model_alfabet-Copy1.pkl
 /project recognition bahasa isyarat/model_angka-Copy1.pkl
 /project recognition bahasa isyarat/model_kata-Copy1.pkl
+/project recognition bahasa isyarat/extracted_number_data/
 
 /project aplikasi bahasa isyarat/model_alfabet.pkl
 /project aplikasi bahasa isyarat/model_angka.pkl
 
 # Ignore all pickle files
 *.pkl
+*.keras
+*.h5
+*.npy
