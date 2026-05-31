@@ -2,7 +2,7 @@
 // KONFIGURASI
 // ==========================================================
 const API_URL = "http://127.0.0.1:8000/predict";
-const CAPTURE_INTERVAL_MS = 500; // lebih ringan daripada 300ms
+const CAPTURE_INTERVAL_MS = 150; // mode angka video perlu frame lebih rapat untuk sequence 30 frame
 
 // ==========================================================
 // STATE

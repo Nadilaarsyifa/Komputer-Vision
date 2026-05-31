@@ -18,10 +18,9 @@ label_encoder_huruf = joblib.load("label_encoder_alfabet.pkl")
 model_angka_video = load_model("model_angka_video_laptop.h5", compile=False)
 with open("label_encoder_angka_video.pkl", "rb") as f:
     label_encoder_angka_video = pickle.load(f)
-# Model kata sekarang memakai video sequence / BiLSTM
-model_kata_video = load_model("model_kata_video_bilstm.h5", compile=False)
-with open("label_encoder_kata_video.pkl", "rb") as f:
-    label_encoder_kata_video = pickle.load(f)
+model_kata         = joblib.load("model_kata_mlp.pkl")
+scaler_kata        = joblib.load("scaler_kata_mlp.pkl")
+label_encoder_kata = joblib.load("label_encoder_kata.pkl")
 
 # ==========================================================
 # THRESHOLD & SMOOTHING
@@ -161,86 +160,135 @@ def reset_angka_video():
     no_hand_counter_angka = 0
 
 
-# ==========================================================
-# FUNGSI EKSTRAK KATA VIDEO — 2 TANGAN + POSE + FACE, 162 FITUR
-# ==========================================================
-KATA_POSE_POINTS = [11, 12, 13, 14, 15, 16]
-KATA_FACE_POINTS = [1, 10, 13, 152, 234, 454]
+def extract_kata_features(result):
+    data = []
+
+    def normalize_landmarks(landmarks):
+        pts = np.array([[lm.x, lm.y] for lm in landmarks])
+        base = pts[0]
+        pts  = pts - base
+        mv   = np.max(np.abs(pts))
+        if mv != 0:
+            pts = pts / mv
+        return pts.flatten().tolist()
+
+    def pairwise_distances(landmarks):
+        pairs = [(4, 8), (8, 12), (12, 16), (16, 20)]
+        return [((landmarks[a].x - landmarks[b].x)**2 +
+                 (landmarks[a].y - landmarks[b].y)**2)**0.5
+                for a, b in pairs]
+
+    def dist_xy(a, b):
+        return ((a.x - b.x)**2 + (a.y - b.y)**2)**0.5
+
+    # LEFT HAND
+    if result.left_hand_landmarks:
+        left = result.left_hand_landmarks.landmark
+        data += normalize_landmarks(left)
+        data += pairwise_distances(left)
+    else:
+        data += [0.0] * 46
+
+    # RIGHT HAND
+    if result.right_hand_landmarks:
+        right = result.right_hand_landmarks.landmark
+        data += normalize_landmarks(right)
+        data += pairwise_distances(right)
+    else:
+        data += [0.0] * 46
+
+    # FACE
+    if result.face_landmarks:
+        face = result.face_landmarks.landmark
+        base = np.array([face[1].x, face[1].y])
+        for i in FACE_POINTS:
+            lm = face[i]
+            pt = np.array([lm.x, lm.y]) - base
+            data += pt.tolist()
+    else:
+        data += [0.0] * 10
+
+    # POSE
+    if result.pose_landmarks:
+        pose = result.pose_landmarks.landmark
+        base = np.array([pose[11].x, pose[11].y])
+        for i in POSE_POINTS:
+            lm = pose[i]
+            pt = np.array([lm.x, lm.y]) - base
+            data += pt.tolist()
+    else:
+        data += [0.0] * 10
+
+    # CROSS FEATURES ASLI (2 fitur)
+    extra = []
+    if result.right_hand_landmarks and result.face_landmarks:
+        hand = result.right_hand_landmarks.landmark
+        face = result.face_landmarks.landmark
+        extra.append(dist_xy(hand[8], face[NOSE]))
+        extra.append(dist_xy(hand[4], face[NOSE]))
+    else:
+        extra += [0.0, 0.0]
+
+    # FITUR TAMBAHAN BARU (9 fitur)
+    if result.right_hand_landmarks and result.face_landmarks and result.pose_landmarks:
+        rh   = result.right_hand_landmarks.landmark
+        face = result.face_landmarks.landmark
+        pose = result.pose_landmarks.landmark
+        extra.append(dist_xy(rh[8], face[CHIN]))
+        extra.append(dist_xy(rh[8], face[NOSE]))
+        extra.append(dist_xy(rh[8], pose[12]))
+        extra.append(dist_xy(rh[4], face[CHIN]))
+    else:
+        extra += [0.0] * 4
+
+    if result.left_hand_landmarks and result.face_landmarks and result.pose_landmarks:
+        lh   = result.left_hand_landmarks.landmark
+        face = result.face_landmarks.landmark
+        pose = result.pose_landmarks.landmark
+        extra.append(dist_xy(lh[8], face[CHIN]))
+        extra.append(dist_xy(lh[8], pose[11]))
+        extra.append(dist_xy(lh[4], face[CHIN]))
+    else:
+        extra += [0.0] * 3
+
+    both_hands = 1.0 if (result.right_hand_landmarks and result.left_hand_landmarks) else 0.0
+    extra.append(both_hands)
+
+    if result.right_hand_landmarks and result.face_landmarks:
+        rh   = result.right_hand_landmarks.landmark
+        face = result.face_landmarks.landmark
+        y_rel = rh[8].y - face[NOSE].y
+        extra.append(y_rel)
+    else:
+        extra.append(0.0)
+
+    # FITUR TAMBAHAN BARU 2 (6 fitur)
+    # Bedakan Tolong vs Berpikir, Apa vs Berdoa
+
+    # Tangan kanan ke dahi, pipi, mulut
+    if result.right_hand_landmarks and result.face_landmarks:
+        rh   = result.right_hand_landmarks.landmark
+        face = result.face_landmarks.landmark
+        extra.append(dist_xy(rh[8], face[FOREHEAD]))     # telunjuk → dahi
+        extra.append(dist_xy(rh[8], face[CHEEK_RIGHT]))  # telunjuk → pipi kanan
+        extra.append(dist_xy(rh[8], face[MOUTH]))        # telunjuk → mulut
+    else:
+        extra += [0.0] * 3
+
+    # Tangan kiri ke dahi, pipi, mulut
+    if result.left_hand_landmarks and result.face_landmarks:
+        lh   = result.left_hand_landmarks.landmark
+        face = result.face_landmarks.landmark
+        extra.append(dist_xy(lh[8], face[FOREHEAD]))
+        extra.append(dist_xy(lh[8], face[CHEEK_LEFT]))
+        extra.append(dist_xy(lh[8], face[MOUTH]))
+    else:
+        extra += [0.0] * 3
+
+    data += extra
+    return data  # 129 fitur
 
 
-def normalize_hand_kata_video(hand_landmarks):
-    if hand_landmarks is None:
-        return np.zeros(63, dtype=np.float32)
-
-    landmarks = np.array(
-        [[lm.x, lm.y, lm.z] for lm in hand_landmarks.landmark],
-        dtype=np.float32
-    )
-
-    wrist = landmarks[0]
-    landmarks = landmarks - wrist
-
-    scale = np.linalg.norm(landmarks[9])
-    if scale < 1e-6:
-        scale = 1.0
-
-    landmarks = landmarks / scale
-    return landmarks.flatten()
-
-
-def extract_pose_kata_video(pose_landmarks):
-    if pose_landmarks is None:
-        return np.zeros(18, dtype=np.float32)
-
-    lm = pose_landmarks.landmark
-
-    base = np.array([
-        (lm[11].x + lm[12].x) / 2,
-        (lm[11].y + lm[12].y) / 2,
-        (lm[11].z + lm[12].z) / 2
-    ], dtype=np.float32)
-
-    points = []
-    for idx in KATA_POSE_POINTS:
-        p = np.array([lm[idx].x, lm[idx].y, lm[idx].z], dtype=np.float32)
-        points.extend((p - base).tolist())
-
-    return np.array(points, dtype=np.float32)
-
-
-def extract_face_kata_video(face_landmarks):
-    if face_landmarks is None:
-        return np.zeros(18, dtype=np.float32)
-
-    lm = face_landmarks.landmark
-    base = np.array([lm[1].x, lm[1].y, lm[1].z], dtype=np.float32)
-
-    points = []
-    for idx in KATA_FACE_POINTS:
-        p = np.array([lm[idx].x, lm[idx].y, lm[idx].z], dtype=np.float32)
-        points.extend((p - base).tolist())
-
-    return np.array(points, dtype=np.float32)
-
-
-def extract_kata_video_features(result):
-    left_hand = normalize_hand_kata_video(result.left_hand_landmarks)
-    right_hand = normalize_hand_kata_video(result.right_hand_landmarks)
-    pose = extract_pose_kata_video(result.pose_landmarks)
-    face = extract_face_kata_video(result.face_landmarks)
-
-    features = np.concatenate([left_hand, right_hand, pose, face])
-    return features.astype(np.float32)
-
-
-def reset_kata_video():
-    global final_pred_kata, final_conf_kata, frame_counter_kata, no_hand_counter_kata
-    sequence_kata.clear()
-    pred_buffer_kata.clear()
-    final_pred_kata = "-"
-    final_conf_kata = 0.0
-    frame_counter_kata = 0
-    no_hand_counter_kata = 0
 
 # ==========================================================
 # LOOP CAMERA
@@ -367,78 +415,34 @@ while True:
             conf_text = f"{final_conf_angka*100:.0f}%"
 
     # ======================================================
-    # MODE KATA — VIDEO SEQUENCE / BiLSTM
+    # MODE KATA — MLP + scaler + label encoder
     # ======================================================
     elif mode == "kata":
         result = holistic.process(rgb)
-        hand_detected = False
+        data   = extract_kata_features(result)
 
-        frame_counter_kata += 1
+        if len(data) == 129:
+            hand_detected = (result.left_hand_landmarks or result.right_hand_landmarks)
 
-        # Tampilkan landmark tangan saja agar layar tidak terlalu penuh
-        if result.left_hand_landmarks:
-            hand_detected = True
-            mp_draw.draw_landmarks(
-                frame,
-                result.left_hand_landmarks,
-                mp_hands.HAND_CONNECTIONS
-            )
+            if hand_detected:
+                # WAJIB: scale dulu sebelum masuk MLP
+                data_scaled = scaler_kata.transform(np.array(data).reshape(1, -1))
+                proba        = model_kata.predict_proba(data_scaled)[0]
+                max_conf     = np.max(proba)
+                conf_text    = f"{max_conf*100:.0f}%"
 
-        if result.right_hand_landmarks:
-            hand_detected = True
-            mp_draw.draw_landmarks(
-                frame,
-                result.right_hand_landmarks,
-                mp_hands.HAND_CONNECTIONS
-            )
-
-        if hand_detected:
-            no_hand_counter_kata = 0
-            features = extract_kata_video_features(result)
-
-            if features.shape[0] == FEATURE_SIZE_KATA:
-                sequence_kata.append(features)
+                if max_conf >= CONFIDENCE_THRESHOLD:
+                    pred_encoded = np.argmax(proba)
+                    raw_pred     = label_encoder_kata.inverse_transform([pred_encoded])[0]
+                    pred         = get_smooth_pred(raw_pred)
+                else:
+                    pred_history.clear()
+                    pred = "-"
             else:
-                pred = f"err:{features.shape[0]}"
+                pred_history.clear()
+                pred = "-"
         else:
-            no_hand_counter_kata += 1
-
-        # Kalau tangan hilang beberapa frame, kosongkan prediksi
-        if no_hand_counter_kata >= NO_HAND_LIMIT_KATA:
-            reset_kata_video()
-            pred = "-"
-            conf_text = ""
-
-        # Prediksi hanya kalau tangan terdeteksi, sequence penuh, dan tidak setiap frame
-        if (
-            hand_detected
-            and len(sequence_kata) == SEQUENCE_LENGTH_KATA
-            and frame_counter_kata % PREDICT_EVERY_KATA == 0
-        ):
-            input_data = np.expand_dims(
-                np.array(sequence_kata, dtype=np.float32),
-                axis=0
-            )
-
-            proba = model_kata_video.predict(input_data, verbose=0)[0]
-            max_conf = float(np.max(proba))
-            conf_text = f"{max_conf*100:.0f}%"
-
-            if max_conf >= CONF_THRESHOLD_KATA:
-                pred_encoded = int(np.argmax(proba))
-                raw_pred = label_encoder_kata_video.inverse_transform([pred_encoded])[0]
-
-                pred_buffer_kata.append(raw_pred)
-                final_pred_kata = Counter(pred_buffer_kata).most_common(1)[0][0]
-                final_conf_kata = max_conf
-            else:
-                pred_buffer_kata.clear()
-                final_pred_kata = "-"
-                final_conf_kata = 0.0
-
-        pred = final_pred_kata
-        if final_conf_kata > 0:
-            conf_text = f"{final_conf_kata*100:.0f}%"
+            pred = f"err:{len(data)}"
 
     # ======================================================
     # TAMPILAN
@@ -460,17 +464,14 @@ while True:
         mode = "huruf"
         pred_history.clear()
         reset_angka_video()
-        reset_kata_video()
     elif key == ord('n'):
         mode = "angka"
         pred_history.clear()
         reset_angka_video()
-        reset_kata_video()
     elif key == ord('k'):
         mode = "kata"
         pred_history.clear()
         reset_angka_video()
-        reset_kata_video()
     elif key == ord('q'):
         break
 

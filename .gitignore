@@ -7,6 +7,10 @@
 /project recognition bahasa isyarat/dataset_alfabet/
 /project recognition bahasa isyarat/dataset_angka_myself/
 /project recognition bahasa isyarat/Dataset_Kata/
+/projeck aplikasi bahasa isyarat/final_projeck_recognition_bahasa_isyarat/Dataset_Kata/
+/projeck aplikasi bahasa isyarat/final_projeck_recognition_bahasa_isyarat/alfabet_bisindo/
+/projeck aplikasi bahasa isyarat/final_projeck_recognition_bahasa_isyarat/dataset_angka_video/
+/projeck aplikasi bahasa isyarat/final_projeck_recognition_bahasa_isyarat/dataset_kata_baru1/
 /project recognition bahasa isyarat/dataset_angka/
 
 /project recognition bahasa isyarat/alfabet_bisindo/
@@ -15,6 +19,7 @@
 /project recognition bahasa isyarat/dataset_kata_baru3/
 /project recognition bahasa isyarat/dataset_kata_baru4/
 /project recognition bahasa isyarat/dataset_angka_video/
+/project recognition bahasa isyarat/dataset_video_kata/
 # Model files
 /project recognition bahasa isyarat/model_kata.pkl
 /project recognition bahasa isyarat/model_alfabet-Copy1.pkl

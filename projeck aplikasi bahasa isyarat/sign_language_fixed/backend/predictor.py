@@ -4,6 +4,7 @@ from collections import Counter, deque
 
 import cv2
 import joblib
+import pickle
 import mediapipe as mp
 import numpy as np
 
@@ -19,8 +20,12 @@ MODEL_DIR = os.path.join(BASE_DIR, "models")
 model_huruf = joblib.load(os.path.join(MODEL_DIR, "model_bisindo_alfabet.pkl"))
 label_encoder_huruf = joblib.load(os.path.join(MODEL_DIR, "label_encoder_alfabet.pkl"))
 
-model_angka = joblib.load(os.path.join(MODEL_DIR, "model_number_xgboost.pkl"))
-label_encoder_angka = joblib.load(os.path.join(MODEL_DIR, "label_encoder_number.pkl"))
+from tensorflow.keras.models import load_model
+
+# Model angka revisi: video sequence / BiLSTM
+model_angka_video = load_model(os.path.join(MODEL_DIR, "model_angka_video_laptop.h5"), compile=False)
+with open(os.path.join(MODEL_DIR, "label_encoder_angka_video.pkl"), "rb") as f:
+    label_encoder_angka_video = pickle.load(f)
 
 model_kata = joblib.load(os.path.join(MODEL_DIR, "model_kata_mlp.pkl"))
 scaler_kata = joblib.load(os.path.join(MODEL_DIR, "scaler_kata_mlp.pkl"))
@@ -33,6 +38,22 @@ CONFIDENCE_THRESHOLD = 0.5
 SMOOTH_WINDOW = 10
 pred_history = deque(maxlen=SMOOTH_WINDOW)
 last_mode = None
+
+# ==========================================================
+# KONFIGURASI KHUSUS MODE ANGKA VIDEO
+# ==========================================================
+SEQUENCE_LENGTH_ANGKA = 30
+FEATURE_SIZE_ANGKA = 63
+PREDICT_EVERY_ANGKA = 5
+NO_HAND_LIMIT_ANGKA = 10
+CONF_THRESHOLD_ANGKA = 0.70
+
+sequence_angka = deque(maxlen=SEQUENCE_LENGTH_ANGKA)
+pred_buffer_angka = deque(maxlen=10)
+final_pred_angka = "-"
+final_conf_angka = 0.0
+frame_counter_angka = 0
+no_hand_counter_angka = 0
 
 # ==========================================================
 # MEDIAPIPE
@@ -74,6 +95,8 @@ def reset_history_if_mode_changed(mode):
     global last_mode
     if last_mode != mode:
         pred_history.clear()
+        if last_mode == "angka" or mode == "angka":
+            reset_angka_video()
         last_mode = mode
 
 
@@ -99,6 +122,35 @@ def extract_one_hand(hand_landmarks):
     data.append(dist(16, 20))
 
     return data
+
+
+def normalize_landmarks_angka_video(hand_landmarks):
+    """Ekstraksi fitur angka sesuai model video BiLSTM: 21 landmark x,y,z = 63 fitur."""
+    landmarks = np.array(
+        [[lm.x, lm.y, lm.z] for lm in hand_landmarks.landmark],
+        dtype=np.float32,
+    )
+
+    wrist = landmarks[0]
+    landmarks = landmarks - wrist
+
+    # Skala berdasarkan jarak wrist ke MCP jari tengah agar ukuran tangan lebih stabil.
+    scale = np.linalg.norm(landmarks[9])
+    if scale < 1e-6:
+        scale = 1.0
+
+    landmarks = landmarks / scale
+    return landmarks.flatten()
+
+
+def reset_angka_video():
+    global final_pred_angka, final_conf_angka, frame_counter_angka, no_hand_counter_angka
+    sequence_angka.clear()
+    pred_buffer_angka.clear()
+    final_pred_angka = "-"
+    final_conf_angka = 0.0
+    frame_counter_angka = 0
+    no_hand_counter_angka = 0
 
 
 def extract_kata_features(result):
@@ -270,44 +322,54 @@ def predict_frame(frame: np.ndarray, mode: str) -> dict:
             pred_history.clear()
 
     elif mode == "angka":
+        global final_pred_angka, final_conf_angka, frame_counter_angka, no_hand_counter_angka
+
         result = hands.process(rgb)
-        hand = result.multi_hand_landmarks[0] if result.multi_hand_landmarks else None
+        hand_detected = False
+        frame_counter_angka += 1
 
-        if hand:
-            lm_list = hand.landmark
-            data = []
-            base_x = lm_list[0].x
-            base_y = lm_list[0].y
+        if result.multi_hand_landmarks:
+            hand_detected = True
+            no_hand_counter_angka = 0
 
-            for lm in lm_list:
-                data.append(lm.x - base_x)
-                data.append(lm.y - base_y)
+            # Ambil 1 tangan pertama, sama seperti kode training/testing video.
+            hand = result.multi_hand_landmarks[0]
+            landmark_data = normalize_landmarks_angka_video(hand)
 
-            data = np.array(data)
-            data = data - np.min(data)
-            if np.max(data) != 0:
-                data = data / np.max(data)
-            data = data.tolist()
+            if landmark_data.shape[0] == FEATURE_SIZE_ANGKA:
+                sequence_angka.append(landmark_data)
+        else:
+            no_hand_counter_angka += 1
 
-            def dist(a, b):
-                return ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** 0.5
+        if no_hand_counter_angka >= NO_HAND_LIMIT_ANGKA:
+            reset_angka_video()
+        elif (
+            hand_detected
+            and len(sequence_angka) == SEQUENCE_LENGTH_ANGKA
+            and frame_counter_angka % PREDICT_EVERY_ANGKA == 0
+        ):
+            input_data = np.expand_dims(
+                np.array(sequence_angka, dtype=np.float32),
+                axis=0,
+            )
 
-            data.append(dist(lm_list[4], lm_list[8]))
-            data.append(dist(lm_list[8], lm_list[12]))
-            data.append(dist(lm_list[12], lm_list[16]))
-            data.append(dist(lm_list[16], lm_list[20]))
-
-            proba = model_angka.predict_proba(np.array(data).reshape(1, -1))[0]
+            proba = model_angka_video.predict(input_data, verbose=0)[0]
             confidence = float(np.max(proba))
 
-            if confidence >= CONFIDENCE_THRESHOLD:
+            if confidence >= CONF_THRESHOLD_ANGKA:
                 pred_encoded = int(np.argmax(proba))
-                raw_pred = label_encoder_angka.inverse_transform([pred_encoded])[0]
-                pred = get_smooth_pred(str(raw_pred))
+                raw_pred = label_encoder_angka_video.inverse_transform([pred_encoded])[0]
+
+                pred_buffer_angka.append(str(raw_pred))
+                final_pred_angka = Counter(pred_buffer_angka).most_common(1)[0][0]
+                final_conf_angka = confidence
             else:
-                pred_history.clear()
-        else:
-            pred_history.clear()
+                pred_buffer_angka.clear()
+                final_pred_angka = "-"
+                final_conf_angka = 0.0
+
+        pred = final_pred_angka
+        confidence = final_conf_angka
 
     elif mode == "kata":
         result = holistic.process(rgb)
