@@ -71,26 +71,6 @@
       transform: scaleX(-1);
     }
 
-    /* Video panduan angka: jangan ikut style kamera */
-    #angka-guide-video {
-      width: 100%;
-      height: auto;
-      max-height: 420px;
-      object-fit: contain;
-      display: block;
-      background: #000;
-      border-radius: var(--radius-md);
-      pointer-events: auto !important;
-      transform: none !important;
-      position: relative;
-      z-index: 20;
-    }
-
-    #img-wrap-angka {
-      position: relative;
-      z-index: 10;
-    }
-
     /* Scan lines overlay */
     .cam-scanlines {
       position: absolute;
@@ -766,15 +746,13 @@
       <div class="guide-image-wrap hidden kata-preview-card" id="img-wrap-angka">
         <div class="kata-preview-title" id="angka-preview-title">Panduan Angka</div>
         <video
-          id="angka-guide-video"
-          class="guide-img"
-          controls
-          preload="auto"
-          loop
-          muted
-          playsinline
-          style="width:100%; height:auto; pointer-events:auto;">
-        </video>
+      id="angka-guide-video"
+      class="guide-img"
+      controls
+      loop
+      muted
+      playsinline>
+  </video>
         <p class="guide-caption" id="angka-guide-caption"></p>
       </div>
     </div>
@@ -973,51 +951,27 @@ function showHurufGuide(huruf) {
 
 function showAngkaGuide(angka) {
   const wrap = document.getElementById("img-wrap-angka");
-  const videoAngka = document.getElementById("angka-guide-video");
+  const video = document.getElementById("angka-guide-video");
   const title = document.getElementById("angka-preview-title");
   const caption = document.getElementById("angka-guide-caption");
 
-  if (!wrap || !videoAngka) return;
+  if (!wrap || !video) return;
 
-  // Kalau tombol angka yang sama diklik lagi, tutup preview
   if (activeAngkaGuide === angka) {
     wrap.classList.add("hidden");
-    videoAngka.pause();
-    videoAngka.removeAttribute("src");
-    videoAngka.load();
+    video.pause();
     document.querySelectorAll(".angka-btn").forEach(b => b.classList.remove("active"));
     activeAngkaGuide = null;
     return;
   }
 
-  // Tampilkan dulu kotaknya supaya kontrol video bisa diklik
-  wrap.classList.remove("hidden");
-
-  // Reset video lama sebelum memuat video baru
-  videoAngka.pause();
-  videoAngka.removeAttribute("src");
-  videoAngka.load();
-
-  const src = "videos/angka_" + angka + ".mp4?v=" + Date.now();
-  videoAngka.src = src;
-  videoAngka.controls = true;
-  videoAngka.muted = true;
-  videoAngka.loop = true;
-  videoAngka.playsInline = true;
-  videoAngka.style.pointerEvents = "auto";
-  videoAngka.load();
-
-  // Karena fungsi ini dipanggil dari klik tombol, browser mengizinkan play muted.
-  // Kalau gagal, kontrol tetap muncul dan bisa diklik manual.
-  videoAngka.play().catch(() => {});
-
-  videoAngka.onerror = () => {
-    console.error("Video angka gagal dimuat:", src, videoAngka.error);
-  };
+  video.src = "videos/angka_" + angka + ".mp4";
+  video.load();
 
   if (title) title.textContent = "Panduan Angka: " + angka;
   if (caption) caption.textContent = "Video gerakan untuk angka: " + angka;
 
+  wrap.classList.remove("hidden");
   activeAngkaGuide = angka;
 
   document.querySelectorAll(".angka-btn").forEach(b => {
