@@ -646,31 +646,114 @@
 
     <!-- Huruf -->
     <div class="guide-block" id="guide-huruf">
-      <div class="guide-block-header" onclick="toggleGuide('huruf')">
+      <div class="guide-block-header">
         <div class="guide-block-left">
-          <span class="guide-badge-pill">A – Z</span>
+          <span class="guide-badge-pill" id="huruf-count-badge">26 huruf</span>
           <span class="guide-block-title">Panduan Huruf Alfabet</span>
         </div>
-        <button class="guide-toggle-btn" id="btn-guide-huruf">Lihat Panduan</button>
       </div>
-      <div class="guide-image-wrap hidden" id="img-wrap-huruf">
-        <img src="images/gambar alfabet.jpeg" alt="Panduan Alfabet BISINDO" class="guide-img" />
-        <p class="guide-caption">Referensi gerakan alfabet A–Z dalam BISINDO</p>
+
+      <div class="kata-tools">
+        <span class="kata-hint">Klik salah satu huruf untuk melihat panduan gerakannya.</span>
+      </div>
+
+      <div class="kata-list-simple">
+        <div class="kata-btns">
+      <button class="kata-btn huruf-btn" data-huruf="A" onclick="showHurufGuide('A')">A</button>
+      <button class="kata-btn huruf-btn" data-huruf="B" onclick="showHurufGuide('B')">B</button>
+      <button class="kata-btn huruf-btn" data-huruf="C" onclick="showHurufGuide('C')">C</button>
+      <button class="kata-btn huruf-btn" data-huruf="D" onclick="showHurufGuide('D')">D</button>
+      <button class="kata-btn huruf-btn" data-huruf="E" onclick="showHurufGuide('E')">E</button>
+      <button class="kata-btn huruf-btn" data-huruf="F" onclick="showHurufGuide('F')">F</button>
+      <button class="kata-btn huruf-btn" data-huruf="G" onclick="showHurufGuide('G')">G</button>
+      <button class="kata-btn huruf-btn" data-huruf="H" onclick="showHurufGuide('H')">H</button>
+      <button class="kata-btn huruf-btn" data-huruf="I" onclick="showHurufGuide('I')">I</button>
+      <button class="kata-btn huruf-btn" data-huruf="J" onclick="showHurufGuide('J')">J</button>
+      <button class="kata-btn huruf-btn" data-huruf="K" onclick="showHurufGuide('K')">K</button>
+      <button class="kata-btn huruf-btn" data-huruf="L" onclick="showHurufGuide('L')">L</button>
+      <button class="kata-btn huruf-btn" data-huruf="M" onclick="showHurufGuide('M')">M</button>
+      <button class="kata-btn huruf-btn" data-huruf="N" onclick="showHurufGuide('N')">N</button>
+      <button class="kata-btn huruf-btn" data-huruf="O" onclick="showHurufGuide('O')">O</button>
+      <button class="kata-btn huruf-btn" data-huruf="P" onclick="showHurufGuide('P')">P</button>
+      <button class="kata-btn huruf-btn" data-huruf="Q" onclick="showHurufGuide('Q')">Q</button>
+      <button class="kata-btn huruf-btn" data-huruf="R" onclick="showHurufGuide('R')">R</button>
+      <button class="kata-btn huruf-btn" data-huruf="S" onclick="showHurufGuide('S')">S</button>
+      <button class="kata-btn huruf-btn" data-huruf="T" onclick="showHurufGuide('T')">T</button>
+      <button class="kata-btn huruf-btn" data-huruf="U" onclick="showHurufGuide('U')">U</button>
+      <button class="kata-btn huruf-btn" data-huruf="V" onclick="showHurufGuide('V')">V</button>
+      <button class="kata-btn huruf-btn" data-huruf="W" onclick="showHurufGuide('W')">W</button>
+      <button class="kata-btn huruf-btn" data-huruf="X" onclick="showHurufGuide('X')">X</button>
+      <button class="kata-btn huruf-btn" data-huruf="Y" onclick="showHurufGuide('Y')">Y</button>
+      <button class="kata-btn huruf-btn" data-huruf="Z" onclick="showHurufGuide('Z')">Z</button>
+        </div>
+      </div>
+
+      <div class="guide-image-wrap hidden kata-preview-card" id="img-wrap-huruf">
+        <div class="kata-preview-title" id="huruf-preview-title">Panduan Huruf</div>
+        <img src="" alt="" class="guide-img" id="huruf-guide-img" />
+        <p class="guide-caption" id="huruf-guide-caption"></p>
       </div>
     </div>
 
     <!-- Angka -->
     <div class="guide-block hidden" id="guide-angka">
-      <div class="guide-block-header" onclick="toggleGuide('angka')">
+      <div class="guide-block-header">
         <div class="guide-block-left">
-          <span class="guide-badge-pill">0 – 9</span>
+          <span class="guide-badge-pill" id="angka-count-badge">30 angka</span>
           <span class="guide-block-title">Panduan Angka</span>
         </div>
-        <button class="guide-toggle-btn" id="btn-guide-angka">Lihat Panduan</button>
       </div>
-      <div class="guide-image-wrap hidden" id="img-wrap-angka">
-        <img src="images/gambar number.jpeg" alt="Panduan Angka" class="guide-img" />
-        <p class="guide-caption">Referensi gerakan angka 0–9</p>
+
+      <div class="kata-tools">
+        <span class="kata-hint">Klik salah satu angka untuk melihat panduan gerakannya.</span>
+      </div>
+
+      <div class="kata-list-simple">
+        <div class="kata-btns">
+          <button class="kata-btn angka-btn" data-angka="1" onclick="showAngkaGuide('1')">1</button>
+          <button class="kata-btn angka-btn" data-angka="2" onclick="showAngkaGuide('2')">2</button>
+          <button class="kata-btn angka-btn" data-angka="3" onclick="showAngkaGuide('3')">3</button>
+          <button class="kata-btn angka-btn" data-angka="4" onclick="showAngkaGuide('4')">4</button>
+          <button class="kata-btn angka-btn" data-angka="5" onclick="showAngkaGuide('5')">5</button>
+          <button class="kata-btn angka-btn" data-angka="6" onclick="showAngkaGuide('6')">6</button>
+          <button class="kata-btn angka-btn" data-angka="7" onclick="showAngkaGuide('7')">7</button>
+          <button class="kata-btn angka-btn" data-angka="8" onclick="showAngkaGuide('8')">8</button>
+          <button class="kata-btn angka-btn" data-angka="9" onclick="showAngkaGuide('9')">9</button>
+          <button class="kata-btn angka-btn" data-angka="10" onclick="showAngkaGuide('10')">10</button>
+          <button class="kata-btn angka-btn" data-angka="11" onclick="showAngkaGuide('11')">11</button>
+          <button class="kata-btn angka-btn" data-angka="12" onclick="showAngkaGuide('12')">12</button>
+          <button class="kata-btn angka-btn" data-angka="13" onclick="showAngkaGuide('13')">13</button>
+          <button class="kata-btn angka-btn" data-angka="14" onclick="showAngkaGuide('14')">14</button>
+          <button class="kata-btn angka-btn" data-angka="15" onclick="showAngkaGuide('15')">15</button>
+          <button class="kata-btn angka-btn" data-angka="16" onclick="showAngkaGuide('16')">16</button>
+          <button class="kata-btn angka-btn" data-angka="17" onclick="showAngkaGuide('17')">17</button>
+          <button class="kata-btn angka-btn" data-angka="18" onclick="showAngkaGuide('18')">18</button>
+          <button class="kata-btn angka-btn" data-angka="19" onclick="showAngkaGuide('19')">19</button>
+          <button class="kata-btn angka-btn" data-angka="20" onclick="showAngkaGuide('20')">20</button>
+          <button class="kata-btn angka-btn" data-angka="21" onclick="showAngkaGuide('21')">21</button>
+          <button class="kata-btn angka-btn" data-angka="22" onclick="showAngkaGuide('22')">22</button>
+          <button class="kata-btn angka-btn" data-angka="23" onclick="showAngkaGuide('23')">23</button>
+          <button class="kata-btn angka-btn" data-angka="24" onclick="showAngkaGuide('24')">24</button>
+          <button class="kata-btn angka-btn" data-angka="25" onclick="showAngkaGuide('25')">25</button>
+          <button class="kata-btn angka-btn" data-angka="26" onclick="showAngkaGuide('26')">26</button>
+          <button class="kata-btn angka-btn" data-angka="27" onclick="showAngkaGuide('27')">27</button>
+          <button class="kata-btn angka-btn" data-angka="28" onclick="showAngkaGuide('28')">28</button>
+          <button class="kata-btn angka-btn" data-angka="29" onclick="showAngkaGuide('29')">29</button>
+          <button class="kata-btn angka-btn" data-angka="30" onclick="showAngkaGuide('30')">30</button>
+        </div>
+      </div>
+
+      <div class="guide-image-wrap hidden kata-preview-card" id="img-wrap-angka">
+        <div class="kata-preview-title" id="angka-preview-title">Panduan Angka</div>
+        <video
+      id="angka-guide-video"
+      class="guide-img"
+      controls
+      loop
+      muted
+      playsinline>
+  </video>
+        <p class="guide-caption" id="angka-guide-caption"></p>
       </div>
     </div>
 <!-- Kata -->
@@ -754,6 +837,8 @@ let isRunning = false;
 let intervalId = null;
 let stream = null;
 let isPredicting = false;
+let activeHurufGuide = null;
+let activeAngkaGuide = null;
 let activeKataGuide = null;
 let simMode = false;
 
@@ -823,14 +908,75 @@ function toggleGuide(type) {
 }
 
 function closeGuideImages() {
-  ["huruf","angka","kata"].forEach(t => {
+  ["huruf", "angka", "kata"].forEach(t => {
     const w = document.getElementById("img-wrap-" + t);
     if (w) w.classList.add("hidden");
     const b = document.getElementById("btn-guide-" + t);
     if (b) b.textContent = "Lihat Panduan";
   });
+
   document.querySelectorAll(".kata-btn").forEach(b => b.classList.remove("active"));
+  activeHurufGuide = null;
+  activeAngkaGuide = null;
   activeKataGuide = null;
+}
+
+function showHurufGuide(huruf) {
+  const wrap = document.getElementById("img-wrap-huruf");
+  const img = document.getElementById("huruf-guide-img");
+  const title = document.getElementById("huruf-preview-title");
+  const caption = document.getElementById("huruf-guide-caption");
+
+  if (!wrap || !img) return;
+
+  if (activeHurufGuide === huruf) {
+    wrap.classList.add("hidden");
+    document.querySelectorAll(".huruf-btn").forEach(b => b.classList.remove("active"));
+    activeHurufGuide = null;
+    return;
+  }
+
+  img.src = "images/huruf_" + huruf + ".jpg";
+  img.alt = "Panduan gerakan huruf " + huruf;
+  if (title) title.textContent = "Panduan Huruf: " + huruf;
+  if (caption) caption.textContent = "Gerakan untuk huruf: " + huruf;
+
+  wrap.classList.remove("hidden");
+  activeHurufGuide = huruf;
+
+  document.querySelectorAll(".huruf-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.huruf === huruf);
+  });
+}
+
+function showAngkaGuide(angka) {
+  const wrap = document.getElementById("img-wrap-angka");
+  const video = document.getElementById("angka-guide-video");
+  const title = document.getElementById("angka-preview-title");
+  const caption = document.getElementById("angka-guide-caption");
+
+  if (!wrap || !video) return;
+
+  if (activeAngkaGuide === angka) {
+    wrap.classList.add("hidden");
+    video.pause();
+    document.querySelectorAll(".angka-btn").forEach(b => b.classList.remove("active"));
+    activeAngkaGuide = null;
+    return;
+  }
+
+  video.src = "videos/angka_" + angka + ".mp4";
+  video.load();
+
+  if (title) title.textContent = "Panduan Angka: " + angka;
+  if (caption) caption.textContent = "Video gerakan untuk angka: " + angka;
+
+  wrap.classList.remove("hidden");
+  activeAngkaGuide = angka;
+
+  document.querySelectorAll(".angka-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.angka === angka);
+  });
 }
 
 function showKataGuide(kata) {
@@ -886,6 +1032,8 @@ function initKataSearch() {
 }
 
 window.toggleGuide = toggleGuide;
+window.showHurufGuide = showHurufGuide;
+window.showAngkaGuide = showAngkaGuide;
 window.showKataGuide = showKataGuide;
 
 // ==========================================================

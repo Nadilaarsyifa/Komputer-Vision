@@ -366,3 +366,7 @@ footer a:hover { text-decoration: underline; }
 }
 
 
+/* Membalik video panduan angka agar tidak mirror */
+#angka-guide-video {
+  transform: scaleX(-1);
+}
