@@ -26,9 +26,13 @@
 /project recognition bahasa isyarat/model_angka-Copy1.pkl
 /project recognition bahasa isyarat/model_kata-Copy1.pkl
 /project recognition bahasa isyarat/extracted_number_data/
+/project recognition bahasa isyarat/photo/
 
 /project aplikasi bahasa isyarat/model_alfabet.pkl
 /project aplikasi bahasa isyarat/model_angka.pkl
+/projeck aplikasi bahasa isyarat/sign_language_fixed/startbootstrap-personal-gh-pages/
+
+
 
 # Ignore all pickle files
 *.pkl
