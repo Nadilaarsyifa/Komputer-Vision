@@ -1,1235 +1,243 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SignLens — Deteksi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body { background: var(--light-bg); }
-
-    .detect-layout {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 32px 4vw 60px;
-    }
-
-    .detect-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 26px;
-      flex-wrap: wrap;
-      gap: 14px;
-    }
-
-    .detect-title {
-      font-family: var(--font-display);
-      font-size: 26px;
-      font-weight: 800;
-    }
-
-    .detect-controls-top {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    /* ── MAIN GRID ── */
-    .detect-grid {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 22px;
-      align-items: start;
-    }
-
-    /* ── CAMERA SIDE ── */
-    .cam-block {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .camera-wrapper {
-      position: relative;
-      background: var(--dark);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.22);
-      border: 2px solid var(--dark-3);
-      aspect-ratio: 4/3;
-    }
-
-    #video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transform: scaleX(-1);
-    }
-
-    /* Video panduan angka: jangan ikut style kamera */
-    #angka-guide-video {
-      width: 100%;
-      height: auto;
-      max-height: 420px;
-      object-fit: contain;
-      display: block;
-      background: #000;
-      border-radius: var(--radius-md);
-      pointer-events: auto !important;
-      transform: none !important;
-      position: relative;
-      z-index: 20;
-    }
-
-    #img-wrap-angka {
-      position: relative;
-      z-index: 10;
-    }
-
-    /* Scan lines overlay */
-    .cam-scanlines {
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        to bottom,
-        transparent 0px,
-        transparent 3px,
-        rgba(0,0,0,0.04) 3px,
-        rgba(0,0,0,0.04) 4px
-      );
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    /* Scanning sweep */
-    .cam-sweep {
-      position: absolute;
-      left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, transparent 0%, var(--green-400) 40%, var(--green-500) 50%, var(--green-400) 60%, transparent 100%);
-      box-shadow: 0 0 12px 4px rgba(34,197,94,0.3);
-      animation: sweep 3s linear infinite;
-      z-index: 3;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    @keyframes sweep {
-      0%   { top: 0%; opacity: 0; }
-      5%   { opacity: 1; }
-      95%  { opacity: 1; }
-      100% { top: 100%; opacity: 0; }
-    }
-
-    /* Corners */
-    .cam-corners { position: absolute; inset: 14px; z-index: 4; pointer-events: none; }
-    .cc {
-      position: absolute;
-      width: 28px; height: 28px;
-      border-color: var(--green-400);
-      border-style: solid;
-    }
-    .cc.tl { top: 0; left: 0; border-width: 2.5px 0 0 2.5px; border-radius: 4px 0 0 0; }
-    .cc.tr { top: 0; right: 0; border-width: 2.5px 2.5px 0 0; border-radius: 0 4px 0 0; }
-    .cc.bl { bottom: 0; left: 0; border-width: 0 0 2.5px 2.5px; border-radius: 0 0 0 4px; }
-    .cc.br { bottom: 0; right: 0; border-width: 0 2.5px 2.5px 0; border-radius: 0 0 4px 0; }
-
-    /* Badges on camera */
-    .cam-overlay-top {
-      position: absolute;
-      top: 14px;
-      left: 14px;
-      right: 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 5;
-      pointer-events: none;
-    }
-
-    .cam-mode-pill {
-      background: rgba(10,15,13,0.75);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(34,197,94,0.4);
-      color: var(--green-400);
-      font-family: var(--font-display);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      padding: 6px 14px;
-      border-radius: 999px;
-    }
-
-    .cam-fps-pill {
-      background: rgba(10,15,13,0.75);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: #8fad97;
-      font-family: var(--font-body);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 999px;
-    }
-
-    .cam-no-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: var(--dark-2);
-      color: #5a7a63;
-      gap: 12px;
-      z-index: 6;
-    }
-
-    .cam-no-icon { font-size: 52px; opacity: 0.4; }
-    .cam-no-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: #8fad97; }
-    .cam-no-sub { font-size: 13px; text-align: center; max-width: 220px; line-height: 1.5; }
-
-    /* sim mode tag */
-    .sim-tag {
-      position: absolute;
-      bottom: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(234,179,8,0.15);
-      border: 1px solid rgba(234,179,8,0.4);
-      color: #fbbf24;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      padding: 4px 12px;
-      border-radius: 999px;
-      z-index: 6;
-      display: none;
-    }
-
-    /* Controls row */
-    .cam-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    /* Mode bar under camera */
-    .mode-section {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .mode-section-label {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    /* ── RESULT PANEL ── */
-    .panel {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .result-card {
-      background: white;
-      border-radius: var(--radius-lg);
-      border: 1.5px solid var(--border);
-      box-shadow: var(--shadow-sm);
-      padding: 24px;
-    }
-
-    .result-card-title {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-light);
-      margin-bottom: 12px;
-    }
-
-    .result-big-letter {
-      font-family: var(--font-display);
-      font-size: 80px;
-      font-weight: 800;
-      color: var(--green-600);
-      line-height: 1;
-      min-height: 88px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      letter-spacing: -0.02em;
-    }
-
-    .result-letter-sub {
-      text-align: center;
-      margin-top: 6px;
-    }
-
-    .conf-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      margin-top: 16px;
-    }
-
-    .conf-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-    .conf-value { font-size: 14px; font-weight: 700; color: var(--text-main); }
-
-    /* status */
-    .status-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
-    }
-
-    .status-text {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    /* text builder */
-    .text-card .built-text {
-      font-family: var(--font-display);
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      min-height: 48px;
-      word-break: break-all;
-      color: var(--text-main);
-      padding: 12px 16px;
-      background: var(--green-50);
-      border: 1.5px solid var(--green-200);
-      border-radius: var(--radius-sm);
-      margin-bottom: 12px;
-    }
-
-    .text-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-small {
-      font-family: var(--font-body);
-      font-size: 12px;
-      font-weight: 600;
-      border: 1.5px solid var(--border);
-      background: white;
-      border-radius: 999px;
-      padding: 7px 16px;
-      cursor: pointer;
-      color: var(--text-muted);
-      transition: all 0.2s;
-    }
-    .btn-small:hover { border-color: var(--green-400); color: var(--green-700); }
-    .btn-small.danger:hover { border-color: #fca5a5; color: #ef4444; background: #fef2f2; }
-
-    /* history */
-    .hist-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      min-height: 36px;
-    }
-
-    .hist-chip {
-      background: var(--green-50);
-      border: 1px solid var(--green-200);
-      color: var(--green-700);
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 14px;
-      padding: 5px 14px;
-      border-radius: 999px;
-      animation: chip-in 0.2s ease;
-    }
-
-    @keyframes chip-in {
-      from { transform: scale(0.7); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    /* guide section */
-    .guide-section {
-      margin-top: 32px;
-    }
-
-    .guide-heading {
-      font-family: var(--font-display);
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 16px;
-    }
-
-    .guide-block {
-      background: white;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      margin-bottom: 14px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .guide-block-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 22px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .guide-block-header:hover { background: var(--green-50); }
-
-    .guide-block-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .guide-badge-pill {
-      background: var(--green-100);
-      border: 1.5px solid var(--green-200);
-      color: var(--green-700);
-      font-family: var(--font-body);
-      font-weight: 700;
-      font-size: 12px;
-      padding: 5px 14px;
-      border-radius: 999px;
-    }
-
-    .guide-block-title {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 15px;
-    }
-
-    .guide-toggle-btn {
-      background: var(--green-600);
-      color: white;
-      border: none;
-      border-radius: 999px;
-      padding: 8px 18px;
-      font-family: var(--font-body);
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .guide-toggle-btn:hover { background: var(--green-700); }
-
-    .guide-image-wrap {
-      padding: 0 22px 22px;
-    }
-
-    .guide-img {
-      width: 100%;
-      border-radius: var(--radius-md);
-      display: block;
-    }
-
-    .guide-caption {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 8px;
-      text-align: center;
-    }
-
-    /* ── Kata guide improved UI ── */
-    .kata-tools {
-      padding: 0 22px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .kata-search {
-      width: min(360px, 100%);
-      border: 1.5px solid var(--green-200);
-      background: var(--green-50);
-      color: var(--text-main);
-      border-radius: 999px;
-      padding: 11px 18px;
-      font-family: var(--font-body);
-      font-weight: 600;
-      outline: none;
-      transition: all 0.2s;
-    }
-
-    .kata-search:focus {
-      background: white;
-      border-color: var(--green-500);
-      box-shadow: 0 0 0 4px rgba(34,197,94,0.12);
-    }
-
-    .kata-hint {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .kata-list-simple {
-      padding: 0 22px 18px;
-    }
-
-    .kata-btns {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .kata-btn {
-      background: var(--green-50);
-      border: 1.5px solid var(--green-200);
-      color: var(--green-700);
-      border-radius: 999px;
-      padding: 9px 18px;
-      font-family: var(--font-body);
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.18s ease;
-      box-shadow: 0 6px 14px rgba(22,163,74,0.05);
-    }
-    .kata-btn:hover {
-      transform: translateY(-2px);
-      background: white;
-      border-color: var(--green-400);
-      box-shadow: 0 10px 22px rgba(22,163,74,0.12);
-    }
-    .kata-btn.active {
-      background: var(--green-600);
-      color: white;
-      border-color: var(--green-600);
-      box-shadow: 0 12px 26px rgba(22,163,74,0.22);
-    }
-
-    .kata-preview-card {
-      margin: 4px 22px 22px;
-      padding: 20px;
-      border-radius: var(--radius-lg);
-      border: 1.5px solid var(--green-200);
-      background: linear-gradient(180deg, white, var(--green-50));
-      box-shadow: 0 18px 40px rgba(15, 118, 64, 0.08);
-    }
-
-    .kata-preview-title {
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 16px;
-      color: var(--green-700);
-      margin-bottom: 12px;
-      text-align: center;
-    }
-
-    .kata-preview-card .guide-img {
-      max-height: 420px;
-      object-fit: contain;
-      background: white;
-      border: 1px solid var(--border);
-    }
-
-    .kata-empty {
-      padding: 4px 22px 22px;
-      color: var(--text-muted);
-      font-size: 13px;
-      display: none;
-    }
-
-    /* kata words badge */
-    .kata-support-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .kata-support-chip {
-      background: var(--green-50);
-      border: 1px solid var(--green-200);
-      color: var(--green-700);
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 5px 13px;
-    }
-
-    @media (max-width: 960px) {
-      .detect-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<title>SignLens - Deteksi</title>
+<link href="assets/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="css/styles.css" rel="stylesheet"/><link href="css/signlens-custom.css" rel="stylesheet"/>
 </head>
-<body>
-
-<nav>
-  <a href="index.html" class="nav-logo">
-    <div class="nav-logo-dot"></div>
-    SignLens
-  </a>
-  <ul class="nav-links">
-    <li><a href="index.html">Beranda</a></li>
-    <li><a href="deteksi.html" class="active">Deteksi</a></li>
-    <li><a href="tentang.html">Tentang</a></li>
-  </ul>
-  <a href="tentang.html" class="btn btn-ghost" style="font-size:13px; padding:10px 20px;">Tentang Proyek</a>
+<body class="d-flex flex-column h-100 bg-light">
+<main class="flex-shrink-0">
+<nav class="navbar navbar-expand-lg navbar-light bg-white py-3 shadow-sm sticky-top">
+<div class="container px-5">
+<a class="navbar-brand" href="index.html"><span class="fw-bolder text-primary">SignLens</span></a>
+<button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+<ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder"><li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li><li class="nav-item"><a class="nav-link active" href="deteksi.html">Deteksi</a></li><li class="nav-item"><a class="nav-link" href="tentang.html">Tentang</a></li></ul>
+</div>
+</div>
 </nav>
+<section class="py-5 detect-hero">
+<div class="container px-5">
+<div class="text-center mb-5">
+<h1 class="display-5 fw-bolder mb-2"><span class="text-gradient d-inline">Deteksi Bahasa Isyarat</span></h1>
+<p class="lead fw-normal text-muted mb-0">Pilih mode deteksi, aktifkan kamera, lalu sistem akan menampilkan hasil prediksi secara otomatis.</p>
+</div>
+<div class="row gx-5 gy-4 align-items-start">
+<div class="col-lg-8">
+<div class="card border-0 shadow rounded-4 overflow-hidden">
+<div class="card-body p-4 p-md-5">
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+<div>
+<h2 class="fw-bolder mb-1">Kamera Deteksi</h2>
+</div>
+<div class="d-flex gap-2 flex-wrap" role="group" aria-label="Mode deteksi">
+<button class="btn btn-outline-primary mode-btn active" data-mode="huruf" type="button">Huruf</button>
+<button class="btn btn-outline-primary mode-btn" data-mode="angka" type="button">Angka</button>
+<button class="btn btn-outline-primary mode-btn" data-mode="kata" type="button">Kata</button>
+</div>
+</div>
+<div class="camera-box mb-4">
+<video autoplay="" id="video" muted="" playsinline=""></video>
+<canvas id="canvas"></canvas>
+<div class="cam-sweep"></div>
+<div class="cam-overlay-top">
+<div class="cam-mode-pill">MODE: <span id="cam-mode-badge">HURUF</span></div>
+<div class="cam-fps-pill">LIVE</div>
+</div>
+<div class="cam-corners">
+<div class="cc tl"></div><div class="cc tr"></div><div class="cc bl"></div><div class="cc br"></div>
+</div>
+<div class="cam-no-overlay" id="no-cam">
+<div class="cam-no-icon"><i class="bi bi-camera-video"></i></div>
+<div class="cam-no-title">Kamera belum aktif</div>
+<div class="cam-no-sub">Klik tombol Mulai Kamera untuk menjalankan deteksi.</div>
+</div>
+</div>
+<div class="d-flex flex-wrap gap-2">
+<button class="btn btn-primary btn-lg px-4" id="btn-start"><i class="bi bi-camera-video me-2"></i>Mulai Kamera</button>
+<button class="btn btn-outline-dark btn-lg px-4" disabled="" id="btn-stop"><i class="bi bi-stop-circle me-2"></i>Stop Kamera</button>
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-4">
+<div class="card border-0 shadow rounded-4 mb-4">
+<div class="card-body p-4">
+<div class="small text-uppercase text-muted fw-bolder mb-2">Hasil Prediksi</div>
+<div class="result-big-letter" id="display-result">–</div>
+<div class="text-center text-muted mb-3">Mode: <span class="fw-bolder text-primary" id="display-mode">HURUF</span></div>
+<div class="d-flex justify-content-between border-top pt-3">
+<span class="text-muted">Confidence</span>
+<span class="fw-bolder" id="display-confidence">–</span>
+</div>
+<div class="d-flex align-items-center gap-2 mt-3 pt-3 border-top">
+<span class="status-dot" id="status-dot"></span>
+<span class="result-bar-status text-muted" id="display-status">Kamera belum aktif</span>
+</div>
+<div class="alert alert-success mt-3 mb-0" id="kata-info" style="display:none;">Mode kata membutuhkan posisi tangan dan wajah yang jelas.</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-5 guide-section">
+<h2 class="fw-bolder mb-4">Panduan Gerakan</h2>
 
-<div class="detect-layout">
-
-  <div class="detect-header">
-    <div>
-      <div class="section-label">Real-Time</div>
-      <h1 class="detect-title">Halaman Deteksi</h1>
-    </div>
-    <div class="detect-controls-top">
-      <div class="mode-bar">
-        <button class="mode-btn active" data-mode="huruf">Huruf</button>
-        <button class="mode-btn" data-mode="angka">Angka</button>
-        <button class="mode-btn" data-mode="kata">Kata</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="detect-grid">
-
-    <!-- LEFT: Camera -->
-    <div class="cam-block">
-      <div class="camera-wrapper">
-        <video id="video" autoplay playsinline></video>
-        <canvas id="canvas" style="display:none;"></canvas>
-        <div class="cam-scanlines"></div>
-        <div class="cam-sweep" id="cam-sweep"></div>
-        <div class="cam-corners">
-          <div class="cc tl"></div>
-          <div class="cc tr"></div>
-          <div class="cc bl"></div>
-          <div class="cc br"></div>
-        </div>
-        <div class="cam-overlay-top">
-          <span class="cam-mode-pill" id="cam-mode-pill">● HURUF</span>
-          <span class="cam-fps-pill" id="cam-fps-pill">– fps</span>
-        </div>
-        <div class="cam-no-overlay" id="no-cam">
-          <div class="cam-no-icon">📷</div>
-          <div class="cam-no-title">Kamera Tidak Aktif</div>
-          <div class="cam-no-sub">Tekan "Aktifkan Kamera" untuk memulai deteksi</div>
-        </div>
-        <div class="sim-tag" id="sim-tag">⚠ MODE SIMULASI</div>
-      </div>
-
-      <div class="cam-controls">
-        <button id="btn-start" class="btn btn-primary">▶&nbsp; Aktifkan Kamera</button>
-        <button id="btn-stop" class="btn btn-secondary" disabled>⏹&nbsp; Stop</button>
-      </div>
-    </div>
-
-    <!-- RIGHT: Panel -->
-    <div class="panel">
-
-      <!-- Main result -->
-      <div class="result-card">
-        <div class="result-card-title">Hasil Deteksi</div>
-        <div class="result-big-letter" id="display-result">–</div>
-
-        <div class="conf-row">
-          <span class="conf-label">Confidence Score</span>
-          <span class="conf-value" id="display-confidence">–</span>
-        </div>
-        <div class="conf-bar-wrap">
-          <div class="conf-bar-fill" id="conf-bar" style="width:0%"></div>
-        </div>
-
-        <div class="status-row">
-          <span class="status-dot" id="status-dot"></span>
-          <span class="status-text" id="display-status">Kamera tidak aktif</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- GUIDE SECTION -->
-  <div class="guide-section">
-    <h2 class="guide-heading">Panduan Gerakan</h2>
-
-    <!-- Huruf -->
-    <div class="guide-block" id="guide-huruf">
-      <div class="guide-block-header">
-        <div class="guide-block-left">
-          <span class="guide-badge-pill" id="huruf-count-badge">26 huruf</span>
-          <span class="guide-block-title">Panduan Huruf Alfabet</span>
-        </div>
-      </div>
-
-      <div class="kata-tools">
-        <span class="kata-hint">Klik salah satu huruf untuk melihat panduan gerakannya.</span>
-      </div>
-
-      <div class="kata-list-simple">
-        <div class="kata-btns">
-      <button class="kata-btn huruf-btn" data-huruf="A" onclick="showHurufGuide('A')">A</button>
-      <button class="kata-btn huruf-btn" data-huruf="B" onclick="showHurufGuide('B')">B</button>
-      <button class="kata-btn huruf-btn" data-huruf="C" onclick="showHurufGuide('C')">C</button>
-      <button class="kata-btn huruf-btn" data-huruf="D" onclick="showHurufGuide('D')">D</button>
-      <button class="kata-btn huruf-btn" data-huruf="E" onclick="showHurufGuide('E')">E</button>
-      <button class="kata-btn huruf-btn" data-huruf="F" onclick="showHurufGuide('F')">F</button>
-      <button class="kata-btn huruf-btn" data-huruf="G" onclick="showHurufGuide('G')">G</button>
-      <button class="kata-btn huruf-btn" data-huruf="H" onclick="showHurufGuide('H')">H</button>
-      <button class="kata-btn huruf-btn" data-huruf="I" onclick="showHurufGuide('I')">I</button>
-      <button class="kata-btn huruf-btn" data-huruf="J" onclick="showHurufGuide('J')">J</button>
-      <button class="kata-btn huruf-btn" data-huruf="K" onclick="showHurufGuide('K')">K</button>
-      <button class="kata-btn huruf-btn" data-huruf="L" onclick="showHurufGuide('L')">L</button>
-      <button class="kata-btn huruf-btn" data-huruf="M" onclick="showHurufGuide('M')">M</button>
-      <button class="kata-btn huruf-btn" data-huruf="N" onclick="showHurufGuide('N')">N</button>
-      <button class="kata-btn huruf-btn" data-huruf="O" onclick="showHurufGuide('O')">O</button>
-      <button class="kata-btn huruf-btn" data-huruf="P" onclick="showHurufGuide('P')">P</button>
-      <button class="kata-btn huruf-btn" data-huruf="Q" onclick="showHurufGuide('Q')">Q</button>
-      <button class="kata-btn huruf-btn" data-huruf="R" onclick="showHurufGuide('R')">R</button>
-      <button class="kata-btn huruf-btn" data-huruf="S" onclick="showHurufGuide('S')">S</button>
-      <button class="kata-btn huruf-btn" data-huruf="T" onclick="showHurufGuide('T')">T</button>
-      <button class="kata-btn huruf-btn" data-huruf="U" onclick="showHurufGuide('U')">U</button>
-      <button class="kata-btn huruf-btn" data-huruf="V" onclick="showHurufGuide('V')">V</button>
-      <button class="kata-btn huruf-btn" data-huruf="W" onclick="showHurufGuide('W')">W</button>
-      <button class="kata-btn huruf-btn" data-huruf="X" onclick="showHurufGuide('X')">X</button>
-      <button class="kata-btn huruf-btn" data-huruf="Y" onclick="showHurufGuide('Y')">Y</button>
-      <button class="kata-btn huruf-btn" data-huruf="Z" onclick="showHurufGuide('Z')">Z</button>
-        </div>
-      </div>
-
-      <div class="guide-image-wrap hidden kata-preview-card" id="img-wrap-huruf">
-        <div class="kata-preview-title" id="huruf-preview-title">Panduan Huruf</div>
-        <img src="" alt="" class="guide-img" id="huruf-guide-img" />
-        <p class="guide-caption" id="huruf-guide-caption"></p>
-      </div>
-    </div>
-
-    <!-- Angka -->
-    <div class="guide-block hidden" id="guide-angka">
-      <div class="guide-block-header">
-        <div class="guide-block-left">
-          <span class="guide-badge-pill" id="angka-count-badge">30 angka</span>
-          <span class="guide-block-title">Panduan Angka</span>
-        </div>
-      </div>
-
-      <div class="kata-tools">
-        <span class="kata-hint">Klik salah satu angka untuk melihat panduan gerakannya.</span>
-      </div>
-
-      <div class="kata-list-simple">
-        <div class="kata-btns">
-          <button class="kata-btn angka-btn" data-angka="1" onclick="showAngkaGuide('1')">1</button>
-          <button class="kata-btn angka-btn" data-angka="2" onclick="showAngkaGuide('2')">2</button>
-          <button class="kata-btn angka-btn" data-angka="3" onclick="showAngkaGuide('3')">3</button>
-          <button class="kata-btn angka-btn" data-angka="4" onclick="showAngkaGuide('4')">4</button>
-          <button class="kata-btn angka-btn" data-angka="5" onclick="showAngkaGuide('5')">5</button>
-          <button class="kata-btn angka-btn" data-angka="6" onclick="showAngkaGuide('6')">6</button>
-          <button class="kata-btn angka-btn" data-angka="7" onclick="showAngkaGuide('7')">7</button>
-          <button class="kata-btn angka-btn" data-angka="8" onclick="showAngkaGuide('8')">8</button>
-          <button class="kata-btn angka-btn" data-angka="9" onclick="showAngkaGuide('9')">9</button>
-          <button class="kata-btn angka-btn" data-angka="10" onclick="showAngkaGuide('10')">10</button>
-          <button class="kata-btn angka-btn" data-angka="11" onclick="showAngkaGuide('11')">11</button>
-          <button class="kata-btn angka-btn" data-angka="12" onclick="showAngkaGuide('12')">12</button>
-          <button class="kata-btn angka-btn" data-angka="13" onclick="showAngkaGuide('13')">13</button>
-          <button class="kata-btn angka-btn" data-angka="14" onclick="showAngkaGuide('14')">14</button>
-          <button class="kata-btn angka-btn" data-angka="15" onclick="showAngkaGuide('15')">15</button>
-          <button class="kata-btn angka-btn" data-angka="16" onclick="showAngkaGuide('16')">16</button>
-          <button class="kata-btn angka-btn" data-angka="17" onclick="showAngkaGuide('17')">17</button>
-          <button class="kata-btn angka-btn" data-angka="18" onclick="showAngkaGuide('18')">18</button>
-          <button class="kata-btn angka-btn" data-angka="19" onclick="showAngkaGuide('19')">19</button>
-          <button class="kata-btn angka-btn" data-angka="20" onclick="showAngkaGuide('20')">20</button>
-          <button class="kata-btn angka-btn" data-angka="21" onclick="showAngkaGuide('21')">21</button>
-          <button class="kata-btn angka-btn" data-angka="22" onclick="showAngkaGuide('22')">22</button>
-          <button class="kata-btn angka-btn" data-angka="23" onclick="showAngkaGuide('23')">23</button>
-          <button class="kata-btn angka-btn" data-angka="24" onclick="showAngkaGuide('24')">24</button>
-          <button class="kata-btn angka-btn" data-angka="25" onclick="showAngkaGuide('25')">25</button>
-          <button class="kata-btn angka-btn" data-angka="26" onclick="showAngkaGuide('26')">26</button>
-          <button class="kata-btn angka-btn" data-angka="27" onclick="showAngkaGuide('27')">27</button>
-          <button class="kata-btn angka-btn" data-angka="28" onclick="showAngkaGuide('28')">28</button>
-          <button class="kata-btn angka-btn" data-angka="29" onclick="showAngkaGuide('29')">29</button>
-          <button class="kata-btn angka-btn" data-angka="30" onclick="showAngkaGuide('30')">30</button>
-        </div>
-      </div>
-
-      <div class="guide-image-wrap hidden kata-preview-card" id="img-wrap-angka">
-        <div class="kata-preview-title" id="angka-preview-title">Panduan Angka</div>
-        <video
-          id="angka-guide-video"
-          class="guide-img"
-          controls
-          preload="auto"
-          loop
-          muted
-          playsinline
-          style="width:100%; height:auto; pointer-events:auto;">
-        </video>
-        <p class="guide-caption" id="angka-guide-caption"></p>
-      </div>
-    </div>
-<!-- Kata -->
-<div class="guide-block hidden" id="guide-kata">
-  <div class="guide-block-header">
-    <div class="guide-block-left">
-      <span class="guide-badge-pill" id="kata-count-badge">30 kata</span>
-      <span class="guide-block-title">Panduan Gerakan Kata</span>
-    </div>
-  </div>
-
-  <div class="kata-tools">
-    <input class="kata-search" id="kata-search" type="text" placeholder="search kata" autocomplete="off">
-    <span class="kata-hint">Klik salah satu kata untuk melihat panduan gerakannya.</span>
-  </div>
-
-  <div class="kata-list-simple" id="kata-list">
-    <div class="kata-btns">
-    <button class="kata-btn" data-kata="apa" onclick="showKataGuide('apa')">Apa</button>
-    <button class="kata-btn" data-kata="ayah" onclick="showKataGuide('ayah')">Ayah</button>
-    <button class="kata-btn" data-kata="bantu" onclick="showKataGuide('bantu')">Bantu</button>
-    <button class="kata-btn" data-kata="berdoa" onclick="showKataGuide('berdoa')">Berdoa</button>
-    <button class="kata-btn" data-kata="berjalan" onclick="showKataGuide('berjalan')">Berjalan</button>
-    <button class="kata-btn" data-kata="berpikir" onclick="showKataGuide('berpikir')">Berpikir</button>
-    <button class="kata-btn" data-kata="bertemu" onclick="showKataGuide('bertemu')">Bertemu</button>
-    <button class="kata-btn" data-kata="boleh" onclick="showKataGuide('boleh')">Boleh</button>
-    <button class="kata-btn" data-kata="coba" onclick="showKataGuide('coba')">Coba</button>
-    <button class="kata-btn" data-kata="dimana" onclick="showKataGuide('dimana')">Dimana</button>
-    <button class="kata-btn" data-kata="hati-hati" onclick="showKataGuide('hati-hati')">Hati-Hati</button>
-    <button class="kata-btn" data-kata="ibu" onclick="showKataGuide('ibu')">Ibu</button>
-    <button class="kata-btn" data-kata="iya" onclick="showKataGuide('iya')">Iya</button>
-    <button class="kata-btn" data-kata="kamu" onclick="showKataGuide('kamu')">Kamu</button>
-    <button class="kata-btn" data-kata="kapan" onclick="showKataGuide('kapan')">Kapan</button>
-    <button class="kata-btn" data-kata="lagi" onclick="showKataGuide('lagi')">Lagi</button>
-    <button class="kata-btn" data-kata="maaf" onclick="showKataGuide('maaf')">Maaf</button>
-    <button class="kata-btn" data-kata="makan" onclick="showKataGuide('makan')">Makan</button>
-    <button class="kata-btn" data-kata="mandi" onclick="showKataGuide('mandi')">Mandi</button>
-    <button class="kata-btn" data-kata="mau" onclick="showKataGuide('mau')">Mau</button>
-    <button class="kata-btn" data-kata="sama-sama" onclick="showKataGuide('sama-sama')">Sama-Sama</button>
-    <button class="kata-btn" data-kata="saya" onclick="showKataGuide('saya')">Saya</button>
-    <button class="kata-btn" data-kata="sekarang" onclick="showKataGuide('sekarang')">Sekarang</button>
-    <button class="kata-btn" data-kata="semangat" onclick="showKataGuide('semangat')">Semangat</button>
-    <button class="kata-btn" data-kata="sibuk" onclick="showKataGuide('sibuk')">Sibuk</button>
-    <button class="kata-btn" data-kata="terimakasih" onclick="showKataGuide('terimakasih')">Terimakasih</button>
-    <button class="kata-btn" data-kata="tidak" onclick="showKataGuide('tidak')">Tidak</button>
-    <button class="kata-btn" data-kata="tidur" onclick="showKataGuide('tidur')">Tidur</button>
-    <button class="kata-btn" data-kata="toilet" onclick="showKataGuide('toilet')">Toilet</button>
-    <button class="kata-btn" data-kata="tolong" onclick="showKataGuide('tolong')">Tolong</button>
-    </div>
-  </div>
-
-  <div class="kata-empty" id="kata-empty">Kata tidak ditemukan.</div>
-
-  <div class="guide-image-wrap hidden kata-preview-card" id="img-wrap-kata">
-    <div class="kata-preview-title" id="kata-preview-title">Panduan Gerakan</div>
-    <img src="" alt="" class="guide-img" id="kata-guide-img" />
-    <p class="guide-caption" id="kata-guide-caption"></p>
-  </div>
+<div class="card guide-card mb-3" id="guide-huruf">
+<div class="card-body p-4">
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+<div>
+<span class="guide-badge-pill">26 huruf</span>
+<h5 class="fw-bolder mb-1 mt-2">Panduan Huruf Alfabet</h5>
+</div>
+</div>
+<div class="d-flex flex-wrap gap-2 mb-4">
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="A" onclick="showHurufGuide('A')" type="button">A</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="B" onclick="showHurufGuide('B')" type="button">B</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="C" onclick="showHurufGuide('C')" type="button">C</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="D" onclick="showHurufGuide('D')" type="button">D</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="E" onclick="showHurufGuide('E')" type="button">E</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="F" onclick="showHurufGuide('F')" type="button">F</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="G" onclick="showHurufGuide('G')" type="button">G</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="H" onclick="showHurufGuide('H')" type="button">H</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="I" onclick="showHurufGuide('I')" type="button">I</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="J" onclick="showHurufGuide('J')" type="button">J</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="K" onclick="showHurufGuide('K')" type="button">K</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="L" onclick="showHurufGuide('L')" type="button">L</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="M" onclick="showHurufGuide('M')" type="button">M</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="N" onclick="showHurufGuide('N')" type="button">N</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="O" onclick="showHurufGuide('O')" type="button">O</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="P" onclick="showHurufGuide('P')" type="button">P</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="Q" onclick="showHurufGuide('Q')" type="button">Q</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="R" onclick="showHurufGuide('R')" type="button">R</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="S" onclick="showHurufGuide('S')" type="button">S</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="T" onclick="showHurufGuide('T')" type="button">T</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="U" onclick="showHurufGuide('U')" type="button">U</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="V" onclick="showHurufGuide('V')" type="button">V</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="W" onclick="showHurufGuide('W')" type="button">W</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="X" onclick="showHurufGuide('X')" type="button">X</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="Y" onclick="showHurufGuide('Y')" type="button">Y</button>
+<button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="Z" onclick="showHurufGuide('Z')" type="button">Z</button>
+</div>
+<div class="hidden kata-preview-card" id="img-wrap-huruf">
+<div class="fw-bolder text-center mb-3" id="huruf-preview-title">Panduan Huruf</div>
+<img alt="Panduan huruf" class="guide-img" id="huruf-guide-img" src=""/>
+<p class="guide-caption text-muted text-center small mt-2 mb-0" id="huruf-guide-caption"></p>
+</div>
+</div>
 </div>
 
-  </div>
+<div class="card guide-card mb-3 hidden" id="guide-angka">
+<div class="card-body p-4">
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+<div>
+<span class="guide-badge-pill">30 angka</span>
+<h5 class="fw-bolder mb-1 mt-2">Panduan Angka</h5>
+</div>
+</div>
+<div class="d-flex flex-wrap gap-2 mb-4">
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="1" onclick="showAngkaGuide('1')" type="button">1</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="2" onclick="showAngkaGuide('2')" type="button">2</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="3" onclick="showAngkaGuide('3')" type="button">3</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="4" onclick="showAngkaGuide('4')" type="button">4</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="5" onclick="showAngkaGuide('5')" type="button">5</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="6" onclick="showAngkaGuide('6')" type="button">6</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="7" onclick="showAngkaGuide('7')" type="button">7</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="8" onclick="showAngkaGuide('8')" type="button">8</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="9" onclick="showAngkaGuide('9')" type="button">9</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="10" onclick="showAngkaGuide('10')" type="button">10</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="11" onclick="showAngkaGuide('11')" type="button">11</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="12" onclick="showAngkaGuide('12')" type="button">12</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="13" onclick="showAngkaGuide('13')" type="button">13</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="14" onclick="showAngkaGuide('14')" type="button">14</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="15" onclick="showAngkaGuide('15')" type="button">15</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="16" onclick="showAngkaGuide('16')" type="button">16</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="17" onclick="showAngkaGuide('17')" type="button">17</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="18" onclick="showAngkaGuide('18')" type="button">18</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="19" onclick="showAngkaGuide('19')" type="button">19</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="20" onclick="showAngkaGuide('20')" type="button">20</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="21" onclick="showAngkaGuide('21')" type="button">21</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="22" onclick="showAngkaGuide('22')" type="button">22</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="23" onclick="showAngkaGuide('23')" type="button">23</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="24" onclick="showAngkaGuide('24')" type="button">24</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="25" onclick="showAngkaGuide('25')" type="button">25</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="26" onclick="showAngkaGuide('26')" type="button">26</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="27" onclick="showAngkaGuide('27')" type="button">27</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="28" onclick="showAngkaGuide('28')" type="button">28</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="29" onclick="showAngkaGuide('29')" type="button">29</button>
+<button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="30" onclick="showAngkaGuide('30')" type="button">30</button>
+</div>
+<div class="hidden kata-preview-card" id="img-wrap-angka">
+<div class="fw-bolder text-center mb-3" id="angka-preview-title">Panduan Angka</div>
+<video id="angka-guide-video" class="guide-img" controls preload="auto" loop muted playsinline style="width:100%;height:auto;pointer-events:auto;"></video>
+<p class="guide-caption text-muted text-center small mt-2 mb-0" id="angka-guide-caption"></p>
+</div>
+</div>
 </div>
 
-<footer>
-  <p>SignLens © 2026 · Built with Computer Vision & Machine Learning · Nadila Arsyifa</p>
-</footer>
-
-<script>
-// ==========================================================
-// CONFIG
-// ==========================================================
-const API_URL = "http://127.0.0.1:8000/predict";
-const CAPTURE_INTERVAL_MS = 150;
-const SIM_INTERVAL_MS = 1800;
-
-// ==========================================================
-// STATE
-// ==========================================================
-let currentMode = "huruf";
-let isRunning = false;
-let intervalId = null;
-let stream = null;
-let isPredicting = false;
-let activeHurufGuide = null;
-let activeAngkaGuide = null;
-let activeKataGuide = null;
-let simMode = false;
-
-let builtText = "";
-let histItems = [];
-let lastPred = null;
-let lastAddTime = 0;
-let fpsCounter = 0;
-let fpsLast = Date.now();
-
-// ==========================================================
-// DOM
-// ==========================================================
-const video        = document.getElementById("video");
-const canvas       = document.getElementById("canvas");
-const ctx          = canvas.getContext("2d");
-const btnStart     = document.getElementById("btn-start");
-const btnStop      = document.getElementById("btn-stop");
-const displayRes   = document.getElementById("display-result");
-const displayConf  = document.getElementById("display-confidence");
-const displayStat  = document.getElementById("display-status");
-const statusDot    = document.getElementById("status-dot");
-const camModePill  = document.getElementById("cam-mode-pill");
-const camFpsPill   = document.getElementById("cam-fps-pill");
-const confBar      = document.getElementById("conf-bar");
-const builtTextEl  = document.getElementById("built-text");
-const histListEl   = document.getElementById("hist-list");
-const noCam        = document.getElementById("no-cam");
-const simTag       = document.getElementById("sim-tag");
-const kataInfo     = document.getElementById("kata-info");
-const camSweep     = document.getElementById("cam-sweep");
-
-// ==========================================================
-// MODE BUTTONS
-// ==========================================================
-document.querySelectorAll(".mode-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentMode = btn.dataset.mode;
-    camModePill.textContent = "● " + currentMode.toUpperCase();
-    if (kataInfo) {
-      kataInfo.style.display = currentMode === "kata" ? "block" : "none";
-    }
-    updateGuideBlocks(currentMode);
-    resetResult();
-  });
-});
-
-function updateGuideBlocks(mode) {
-  document.getElementById("guide-huruf").classList.toggle("hidden", mode !== "huruf");
-  document.getElementById("guide-angka").classList.toggle("hidden", mode !== "angka");
-  document.getElementById("guide-kata").classList.toggle("hidden", mode !== "kata");
-  closeGuideImages();
-}
-
-// ==========================================================
-// GUIDE TOGGLES
-// ==========================================================
-function toggleGuide(type) {
-  const wrap = document.getElementById("img-wrap-" + type);
-  const btn  = document.getElementById("btn-guide-" + type);
-  if (!wrap) return;
-  const hidden = wrap.classList.contains("hidden");
-  wrap.classList.toggle("hidden", !hidden);
-  if (btn) btn.textContent = hidden ? "Tutup Panduan" : "Lihat Panduan";
-}
-
-function closeGuideImages() {
-  ["huruf", "angka", "kata"].forEach(t => {
-    const w = document.getElementById("img-wrap-" + t);
-    if (w) w.classList.add("hidden");
-    const b = document.getElementById("btn-guide-" + t);
-    if (b) b.textContent = "Lihat Panduan";
-  });
-
-  document.querySelectorAll(".kata-btn").forEach(b => b.classList.remove("active"));
-  activeHurufGuide = null;
-  activeAngkaGuide = null;
-  activeKataGuide = null;
-}
-
-function showHurufGuide(huruf) {
-  const wrap = document.getElementById("img-wrap-huruf");
-  const img = document.getElementById("huruf-guide-img");
-  const title = document.getElementById("huruf-preview-title");
-  const caption = document.getElementById("huruf-guide-caption");
-
-  if (!wrap || !img) return;
-
-  if (activeHurufGuide === huruf) {
-    wrap.classList.add("hidden");
-    document.querySelectorAll(".huruf-btn").forEach(b => b.classList.remove("active"));
-    activeHurufGuide = null;
-    return;
-  }
-
-  img.src = "images/huruf_" + huruf + ".jpg";
-  img.alt = "Panduan gerakan huruf " + huruf;
-  if (title) title.textContent = "Panduan Huruf: " + huruf;
-  if (caption) caption.textContent = "Gerakan untuk huruf: " + huruf;
-
-  wrap.classList.remove("hidden");
-  activeHurufGuide = huruf;
-
-  document.querySelectorAll(".huruf-btn").forEach(b => {
-    b.classList.toggle("active", b.dataset.huruf === huruf);
-  });
-}
-
-function showAngkaGuide(angka) {
-  const wrap = document.getElementById("img-wrap-angka");
-  const videoAngka = document.getElementById("angka-guide-video");
-  const title = document.getElementById("angka-preview-title");
-  const caption = document.getElementById("angka-guide-caption");
-
-  if (!wrap || !videoAngka) return;
-
-  // Kalau tombol angka yang sama diklik lagi, tutup preview
-  if (activeAngkaGuide === angka) {
-    wrap.classList.add("hidden");
-    videoAngka.pause();
-    videoAngka.removeAttribute("src");
-    videoAngka.load();
-    document.querySelectorAll(".angka-btn").forEach(b => b.classList.remove("active"));
-    activeAngkaGuide = null;
-    return;
-  }
-
-  // Tampilkan dulu kotaknya supaya kontrol video bisa diklik
-  wrap.classList.remove("hidden");
-
-  // Reset video lama sebelum memuat video baru
-  videoAngka.pause();
-  videoAngka.removeAttribute("src");
-  videoAngka.load();
-
-  const src = "videos/angka_" + angka + ".mp4?v=" + Date.now();
-  videoAngka.src = src;
-  videoAngka.controls = true;
-  videoAngka.muted = true;
-  videoAngka.loop = true;
-  videoAngka.playsInline = true;
-  videoAngka.style.pointerEvents = "auto";
-  videoAngka.load();
-
-  // Karena fungsi ini dipanggil dari klik tombol, browser mengizinkan play muted.
-  // Kalau gagal, kontrol tetap muncul dan bisa diklik manual.
-  videoAngka.play().catch(() => {});
-
-  videoAngka.onerror = () => {
-    console.error("Video angka gagal dimuat:", src, videoAngka.error);
-  };
-
-  if (title) title.textContent = "Panduan Angka: " + angka;
-  if (caption) caption.textContent = "Video gerakan untuk angka: " + angka;
-
-  activeAngkaGuide = angka;
-
-  document.querySelectorAll(".angka-btn").forEach(b => {
-    b.classList.toggle("active", b.dataset.angka === angka);
-  });
-}
-
-function showKataGuide(kata) {
-  const wrap    = document.getElementById("img-wrap-kata");
-  const img     = document.getElementById("kata-guide-img");
-  const caption = document.getElementById("kata-guide-caption");
-  if (!wrap || !img) return;
-
-  if (activeKataGuide === kata) {
-    wrap.classList.add("hidden");
-    document.querySelectorAll(".kata-btn").forEach(b => b.classList.remove("active"));
-    activeKataGuide = null;
-    return;
-  }
-
-  const label = document.querySelector(`[data-kata="${kata}"]`)?.textContent.trim() || kata;
-  const title = document.getElementById("kata-preview-title");
-
-  img.src = "images/panduan_" + kata + ".jpg";
-  img.alt = "Panduan gerakan: " + label;
-  if (title) title.textContent = "Panduan Gerakan: " + label;
-  caption.textContent = "Gerakan untuk kata: " + label;
-  wrap.classList.remove("hidden");
-  activeKataGuide = kata;
-
-  document.querySelectorAll(".kata-btn").forEach(b => {
-    b.classList.toggle("active", b.dataset.kata === kata);
-  });
-}
-
-function initKataSearch() {
-  const search = document.getElementById("kata-search");
-  const empty = document.getElementById("kata-empty");
-  const badge = document.getElementById("kata-count-badge");
-  const buttons = [...document.querySelectorAll(".kata-btn[data-kata]")];
-
-  if (badge) badge.textContent = buttons.length + " kata";
-  if (!search) return;
-
-  search.addEventListener("input", () => {
-    const q = search.value.trim().toLowerCase();
-    let visibleCount = 0;
-
-    buttons.forEach(btn => {
-      const text = btn.textContent.trim().toLowerCase();
-      const match = !q || text.includes(q);
-      btn.style.display = match ? "inline-flex" : "none";
-      if (match) visibleCount++;
-    });
-
-    if (empty) empty.style.display = visibleCount ? "none" : "block";
-  });
-}
-
-window.toggleGuide = toggleGuide;
-window.showHurufGuide = showHurufGuide;
-window.showAngkaGuide = showAngkaGuide;
-window.showKataGuide = showKataGuide;
-
-// ==========================================================
-// START CAMERA
-// ==========================================================
-btnStart.addEventListener("click", async () => {
-  setStatus("Meminta akses kamera…", "");
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: 640, height: 480, facingMode: "user" },
-      audio: false
-    });
-    video.srcObject = stream;
-    await video.play();
-    startSuccess(false);
-  } catch (err) {
-    // fallback: simulation mode
-    console.warn("Kamera tidak bisa diakses, masuk mode simulasi:", err.message);
-    startSuccess(true);
-  }
-});
-
-function startSuccess(sim) {
-  simMode = sim;
-  isRunning = true;
-  noCam.classList.add("hidden");
-  simTag.style.display = sim ? "block" : "none";
-  btnStart.disabled = true;
-  btnStop.disabled = false;
-  camSweep.style.animationPlayState = "running";
-  setStatus("Mendeteksi…", "active");
-
-  if (sim) {
-    intervalId = setInterval(simulateFrame, SIM_INTERVAL_MS);
-  } else {
-    intervalId = setInterval(sendFrame, CAPTURE_INTERVAL_MS);
-  }
-
-  // FPS counter
-  setInterval(() => {
-    const now = Date.now();
-    const elapsed = (now - fpsLast) / 1000;
-    if (elapsed > 0) camFpsPill.textContent = Math.round(fpsCounter / elapsed) + " fps";
-    fpsCounter = 0;
-    fpsLast = now;
-  }, 2000);
-}
-
-// ==========================================================
-// STOP
-// ==========================================================
-btnStop.addEventListener("click", () => {
-  isRunning = false;
-  clearInterval(intervalId);
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-  video.srcObject = null;
-  noCam.classList.remove("hidden");
-  simTag.style.display = "none";
-  camSweep.style.animationPlayState = "paused";
-  btnStart.disabled = false;
-  btnStop.disabled = true;
-  setStatus("Kamera dihentikan", "");
-  camFpsPill.textContent = "– fps";
-  resetResult();
-});
-
-// ==========================================================
-// SEND FRAME TO BACKEND
-// ==========================================================
-async function sendFrame() {
-  if (!isRunning || isPredicting || video.videoWidth === 0) return;
-  isPredicting = true;
-
-  canvas.width  = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0);
-  const base64 = canvas.toDataURL("image/jpeg", 0.7).split(",")[1];
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: base64, mode: currentMode })
-    });
-    if (!res.ok) {
-      const e = await res.json();
-      setStatus("Error: " + (e.detail || "Unknown"), "error");
-      return;
-    }
-    const data = await res.json();
-    applyResult(data.result || "–", data.confidence ?? 0);
-    fpsCounter++;
-  } catch (err) {
-    setStatus("Tidak bisa konek ke backend", "error");
-  } finally {
-    isPredicting = false;
-  }
-}
-
-// ==========================================================
-// SIMULATION (fallback when no camera / no backend)
-// ==========================================================
-const simLetters = ["A","B","C","D","E","S","I","K","A","T"];
-const simKata = ["saya","makan","mandi","tidur","berdoa"];
-let simIdx = 0;
-
-function simulateFrame() {
-  if (!isRunning) return;
-  const pool = currentMode === "kata" ? simKata
-             : currentMode === "angka" ? ["1","2","3","4","5","6","7","8","9","0"]
-             : simLetters;
-  const pred = pool[simIdx % pool.length];
-  const conf = (70 + Math.random() * 28).toFixed(1);
-  simIdx++;
-  applyResult(pred, parseFloat(conf));
-  fpsCounter++;
-}
-
-// ==========================================================
-// APPLY RESULT
-// ==========================================================
-function applyResult(pred, confidence) {
-  displayRes.textContent = pred;
-
-  const confNum = Number(confidence) || 0;
-  displayConf.textContent = confNum.toFixed(1) + "%";
-  confBar.style.width = confNum + "%";
-
-  setStatus("Mendeteksi…", "active");
-}
-
-function resetResult() {
-  displayRes.textContent = "–";
-  displayConf.textContent = "–";
-  confBar.style.width = "0%";
-  lastPred = null;
-}
-
-// ==========================================================
-// STATUS HELPER
-// ==========================================================
-function setStatus(text, type) {
-  displayStat.textContent = text;
-  statusDot.className = "status-dot";
-  if (type) statusDot.classList.add(type);
-}
-
-// init
-updateGuideBlocks(currentMode);
-initKataSearch();
-</script>
+<div class="card guide-card mb-3 hidden" id="guide-kata">
+<div class="card-body p-4">
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+<div>
+<span class="guide-badge-pill">30 kata</span>
+<h5 class="fw-bolder mb-1 mt-2">Panduan Gerakan Kata</h5>
+</div>
+</div>
+<input class="form-control kata-search mb-3" id="kata-search" type="text" placeholder="Cari kata..." autocomplete="off" />
+<div class=" d-flex flex-wrap gap-2 mb-4" id="kata-list">
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="apa" onclick="showKataGuide('apa')" type="button">Apa</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="ayah" onclick="showKataGuide('ayah')" type="button">Ayah</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="bantu" onclick="showKataGuide('bantu')" type="button">Bantu</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="berdoa" onclick="showKataGuide('berdoa')" type="button">Berdoa</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="berjalan" onclick="showKataGuide('berjalan')" type="button">Berjalan</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="berpikir" onclick="showKataGuide('berpikir')" type="button">Berpikir</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="bertemu" onclick="showKataGuide('bertemu')" type="button">Bertemu</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="boleh" onclick="showKataGuide('boleh')" type="button">Boleh</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="coba" onclick="showKataGuide('coba')" type="button">Coba</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="dimana" onclick="showKataGuide('dimana')" type="button">Dimana</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="hati-hati" onclick="showKataGuide('hati-hati')" type="button">Hati-Hati</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="ibu" onclick="showKataGuide('ibu')" type="button">Ibu</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="iya" onclick="showKataGuide('iya')" type="button">Iya</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="kamu" onclick="showKataGuide('kamu')" type="button">Kamu</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="kapan" onclick="showKataGuide('kapan')" type="button">Kapan</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="lagi" onclick="showKataGuide('lagi')" type="button">Lagi</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="maaf" onclick="showKataGuide('maaf')" type="button">Maaf</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="makan" onclick="showKataGuide('makan')" type="button">Makan</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="mandi" onclick="showKataGuide('mandi')" type="button">Mandi</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="mau" onclick="showKataGuide('mau')" type="button">Mau</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="sama-sama" onclick="showKataGuide('sama-sama')" type="button">Sama-Sama</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="saya" onclick="showKataGuide('saya')" type="button">Saya</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="sekarang" onclick="showKataGuide('sekarang')" type="button">Sekarang</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="semangat" onclick="showKataGuide('semangat')" type="button">Semangat</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="sibuk" onclick="showKataGuide('sibuk')" type="button">Sibuk</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="terimakasih" onclick="showKataGuide('terimakasih')" type="button">Terimakasih</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="tidak" onclick="showKataGuide('tidak')" type="button">Tidak</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="tidur" onclick="showKataGuide('tidur')" type="button">Tidur</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="toilet" onclick="showKataGuide('toilet')" type="button">Toilet</button>
+<button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="tolong" onclick="showKataGuide('tolong')" type="button">Tolong</button>
+</div>
+<div class="kata-empty alert alert-light border hidden" id="kata-empty">Kata tidak ditemukan.</div>
+<div class="hidden kata-preview-card" id="img-wrap-kata">
+<div class="fw-bolder text-center mb-3" id="kata-guide-caption">Panduan Gerakan</div>
+<img alt="Panduan kata" class="guide-img" id="kata-guide-img" src=""/>
+<p class="guide-caption text-muted text-center small mt-2 mb-0" id="kata-guide-subcaption"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="bg-white py-4 mt-auto border-top"><div class="container px-5"><div class="row align-items-center justify-content-between flex-column flex-sm-row gap-2"><div class="col-auto"><div class="small m-0">Copyright © SignLens 2026</div></div><div class="col-auto small"><a class="footer-link" href="index.html">Beranda</a><span class="mx-1">·</span><a class="footer-link" href="deteksi.html">Deteksi</a><span class="mx-1">·</span><a class="footer-link" href="tentang.html">Tentang</a></div></div></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/scripts.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

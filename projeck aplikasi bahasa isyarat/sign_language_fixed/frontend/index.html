@@ -1,565 +1,196 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SignLens — Beranda</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <style>
-    /* ── HERO ── */
-    .hero {
-      min-height: calc(100vh - 66px);
-      display: flex;
-      align-items: center;
-      position: relative;
-      overflow: hidden;
-      padding: 60px 5vw;
-    }
-
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(ellipse 70% 70% at 80% 20%, rgba(34,197,94,0.12) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 60% at 10% 80%, rgba(74,222,128,0.08) 0%, transparent 60%),
-        var(--light-bg);
-    }
-
-    .hero-grid-lines {
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(34,197,94,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(34,197,94,0.06) 1px, transparent 1px);
-      background-size: 48px 48px;
-      mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 0%, transparent 75%);
-    }
-
-    .hero-inner {
-      position: relative;
-      z-index: 1;
-      max-width: 1200px;
-      margin: 0 auto;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--green-100);
-      border: 1.5px solid var(--green-300, #86efac);
-      color: var(--green-700);
-      font-family: var(--font-body);
-      font-weight: 600;
-      font-size: 12px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 7px 16px;
-      border-radius: 999px;
-      margin-bottom: 24px;
-    }
-
-    .live-dot {
-      width: 8px; height: 8px;
-      background: var(--green-500);
-      border-radius: 50%;
-      animation: pulse-dot 1.4s infinite;
-    }
-
-    .hero-title {
-      font-family: var(--font-display);
-      font-size: clamp(38px, 5.5vw, 72px);
-      font-weight: 800;
-      line-height: 1.07;
-      letter-spacing: -0.02em;
-      margin-bottom: 22px;
-      color: var(--dark);
-    }
-
-    .hero-title .accent {
-      color: var(--green-600);
-      position: relative;
-      display: inline-block;
-    }
-
-    .hero-title .accent::after {
-      content: '';
-      position: absolute;
-      bottom: 2px;
-      left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--green-400), var(--green-600));
-      border-radius: 2px;
-      opacity: 0.5;
-    }
-
-    .hero-desc {
-      font-size: 17px;
-      color: var(--text-muted);
-      line-height: 1.75;
-      margin-bottom: 36px;
-      max-width: 480px;
-    }
-
-    .hero-cta {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    /* hero right — phone mockup */
-    .hero-visual {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .hero-card-float {
-      background: white;
-      border-radius: var(--radius-lg);
-      border: 1.5px solid var(--border);
-      box-shadow: var(--shadow-lg);
-      padding: 28px 32px;
-      width: 100%;
-      max-width: 380px;
-      animation: float-card 4s ease-in-out infinite;
-    }
-
-    @keyframes float-card {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-
-    .cam-preview-mock {
-      width: 100%;
-      aspect-ratio: 4/3;
-      background: var(--dark-2);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      position: relative;
-      margin-bottom: 18px;
-    }
-
-    .cam-scan-line {
-      position: absolute;
-      left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--green-400), transparent);
-      animation: scan 2.8s linear infinite;
-    }
-
-    @keyframes scan {
-      0% { top: 0; opacity: 0.9; }
-      100% { top: 100%; opacity: 0.3; }
-    }
-
-    .cam-corner {
-      position: absolute;
-      width: 22px; height: 22px;
-      border-color: var(--green-400);
-      border-style: solid;
-      opacity: 0.9;
-    }
-    .cam-corner.tl { top: 10px; left: 10px; border-width: 2px 0 0 2px; border-radius: 3px 0 0 0; }
-    .cam-corner.tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; border-radius: 0 3px 0 0; }
-    .cam-corner.bl { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; border-radius: 0 0 0 3px; }
-    .cam-corner.br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; border-radius: 0 0 3px 0; }
-
-    .cam-label {
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--green-600);
-      color: white;
-      font-family: var(--font-body);
-      font-weight: 700;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      padding: 4px 12px;
-      border-radius: 999px;
-    }
-
-    .cam-hand-icon {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 72px;
-      opacity: 0.15;
-      filter: grayscale(1);
-    }
-
-    .result-mock {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .result-mock-letter {
-      font-family: var(--font-display);
-      font-size: 52px;
-      font-weight: 800;
-      color: var(--green-600);
-      line-height: 1;
-    }
-
-    .result-mock-right {
-      flex: 1;
-    }
-
-    .result-mock-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-
-    .result-mock-conf {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 6px;
-    }
-
-    /* ── FEATURES ── */
-    .features {
-      padding: 80px 5vw;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .features-head {
-      text-align: center;
-      margin-bottom: 52px;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-    }
-
-    .feat-card {
-      background: white;
-      border-radius: var(--radius-lg);
-      border: 1.5px solid var(--border);
-      padding: 28px 24px;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.25s;
-    }
-
-    .feat-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-4px);
-      border-color: var(--green-300, #86efac);
-    }
-
-    .feat-icon {
-      width: 50px; height: 50px;
-      background: var(--green-100);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 18px;
-    }
-
-    .feat-title {
-      font-family: var(--font-display);
-      font-size: 17px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .feat-desc {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.65;
-    }
-
-    /* ── STATS STRIP ── */
-    .stats-strip {
-      background: var(--dark-2);
-      border-top: 1px solid var(--dark-3);
-      border-bottom: 1px solid var(--dark-3);
-      padding: 48px 5vw;
-    }
-
-    .stats-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      gap: 32px;
-    }
-
-    .stat-item {
-      text-align: center;
-    }
-
-    .stat-num {
-      font-family: var(--font-display);
-      font-size: 42px;
-      font-weight: 800;
-      color: var(--green-400);
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-
-    .stat-label {
-      font-size: 14px;
-      color: #6b9a74;
-    }
-
-    /* ── CTA SECTION ── */
-    .cta-section {
-      padding: 80px 5vw;
-      text-align: center;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .cta-inner {
-      background: linear-gradient(135deg, var(--dark-2) 0%, var(--dark-3) 100%);
-      border-radius: var(--radius-xl);
-      border: 1px solid var(--dark-3);
-      padding: 64px 40px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta-glow {
-      position: absolute;
-      top: -60px; left: 50%;
-      transform: translateX(-50%);
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(34,197,94,0.2) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .cta-title {
-      font-family: var(--font-display);
-      font-size: clamp(26px, 4vw, 44px);
-      font-weight: 800;
-      color: white;
-      margin-bottom: 16px;
-      position: relative;
-    }
-
-    .cta-desc {
-      color: #6b9a74;
-      font-size: 16px;
-      margin-bottom: 36px;
-      position: relative;
-    }
-
-    .cta-buttons {
-      display: flex;
-      gap: 14px;
-      justify-content: center;
-      flex-wrap: wrap;
-      position: relative;
-    }
-
-    @media (max-width: 900px) {
-      .hero-inner { grid-template-columns: 1fr; }
-      .hero-visual { display: none; }
-      .features-grid { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 560px) {
-      .features-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<meta content="" name="description"/>
+<meta content="" name="author"/>
+<title>SignLens - Beranda</title>
+<!-- Favicon-->
+<link href="assets/favicon.ico" rel="icon" type="image/x-icon"/>
+<!-- Custom Google font-->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<!-- Bootstrap icons-->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<!-- Core theme CSS (includes Bootstrap)-->
+<link href="css/styles.css" rel="stylesheet"/><link href="css/signlens-custom.css" rel="stylesheet"/>
 </head>
-<body>
-
-<!-- NAV -->
-<nav>
-  <a href="index.html" class="nav-logo">
-    <div class="nav-logo-dot"></div>
-    SignLens
-  </a>
-  <ul class="nav-links">
-    <li><a href="index.html" class="active">Beranda</a></li>
-    <li><a href="deteksi.html">Deteksi</a></li>
-    <li><a href="tentang.html">Tentang</a></li>
-  </ul>
-  <a href="deteksi.html" class="btn btn-primary" style="font-size:13px; padding:10px 20px;">Mulai Deteksi →</a>
+<body class="d-flex flex-column h-100">
+<main class="flex-shrink-0">
+<!-- Navigation-->
+<nav class="navbar navbar-expand-lg navbar-light bg-white py-3 shadow-sm sticky-top">
+<div class="container px-5">
+<a class="navbar-brand" href="index.html"><span class="fw-bolder text-primary">SignLens</span></a>
+<button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+<ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder"><li class="nav-item"><a class="nav-link active" href="index.html">Beranda</a></li><li class="nav-item"><a class="nav-link" href="deteksi.html">Deteksi</a></li><li class="nav-item"><a class="nav-link" href="tentang.html">Tentang</a></li></ul>
+</div>
+</div>
 </nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-grid-lines"></div>
-  <div class="hero-inner">
-    <div class="hero-left">
-      <div class="hero-badge">
-        <span class="live-dot"></span>
-        Sistem Aktif
-      </div>
-      <h1 class="hero-title">
-        Deteksi Bahasa<br>Isyarat <span class="accent">Real-Time</span>
-      </h1>
-      <p class="hero-desc">
-      Sistem pengenalan gesture bahasa isyarat Indonesia berbasis computer vision dan machine learning untuk mendeteksi huruf, angka, dan kata secara otomatis melalui kamera.
-      </p>
-      <div class="hero-cta">
-        <a href="deteksi.html" class="btn btn-primary">▶&nbsp; Mulai Deteksi</a>
-        <a href="tentang.html" class="btn btn-secondary">Pelajari Lebih Lanjut</a>
-      </div>
-    </div>
-
-    <div class="hero-visual">
-      <div class="hero-card-float">
-        <div class="cam-preview-mock">
-          <div class="cam-scan-line"></div>
-          <div class="cam-corner tl"></div>
-          <div class="cam-corner tr"></div>
-          <div class="cam-corner bl"></div>
-          <div class="cam-corner br"></div>
-          <div class="cam-label">DETEKSI AKTIF</div>
-          <div class="cam-hand-icon"></div>
-        </div>
-        <div class="result-mock">
-          <div class="result-mock-letter" id="demo-letter">A</div>
-          <div class="result-mock-right">
-            <div class="result-mock-label">Confidence Score</div>
-            <div class="result-mock-conf" id="demo-conf">96.4%</div>
-            <div class="conf-bar-wrap">
-              <div class="conf-bar-fill" id="demo-bar" style="width:96.4%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- STATS -->
-<div class="stats-strip">
-  <div class="stats-inner">
-    <div class="stat-item">
-      <div class="stat-num">3</div>
-      <div class="stat-label">Mode Deteksi</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">26</div>
-      <div class="stat-label">Huruf</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">30</div>
-      <div class="stat-label">Angka</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">30</div>
-      <div class="stat-label">Gesture Kata</div>
-    </div>
-  </div>
+<!-- Header-->
+<header class="py-5 hero-section">
+<div class="container px-5 pb-5">
+<div class="row gx-5 align-items-center">
+<div class="col-xxl-5">
+<!-- Header text content-->
+<div class="text-center text-xxl-start">
+<div class="badge bg-gradient-primary-to-secondary text-white mb-4"></div>
+<h1 class="display-4 fw-bolder mb-4"><span class="text-gradient d-inline">Deteksi Bahasa Isyarat Real-Time</span></h1>
+<div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-xxl-start mb-4">
+<a class="btn btn-primary btn-lg px-5 py-3 me-sm-3 fs-6 fw-bolder" href="deteksi.html"><i class="bi bi-camera-video me-2"></i>Mulai Deteksi</a>
+<a class="btn btn-outline-dark btn-lg px-5 py-3 fs-6 fw-bolder" href="tentang.html">Tentang</a>
 </div>
+<div class="d-flex justify-content-center justify-content-xxl-start gap-3 flex-wrap small text-muted">
+<span><i class="bi bi-check-circle-fill text-success me-1"></i>Huruf</span>
+<span><i class="bi bi-check-circle-fill text-success me-1"></i>Angka</span>
+<span><i class="bi bi-check-circle-fill text-success me-1"></i>Kata</span>
+</div></div>
+</div>
+<div class="col-xxl-7">
+<!-- Header profile picture-->
+<div class="d-flex justify-content-center mt-5 mt-xxl-0">
+<div class="profile bg-gradient-primary-to-secondary">
+<!-- TIP: For best results, use a photo with a transparent background like the demo example below-->
+<!-- Watch a tutorial on how to do this on YouTube (link)-->
+<img alt="Ilustrasi SignLens" class="profile-img" src="assets/gambar_beranda.png"/>
+<div class="dots-1">
+<!-- SVG Dots-->
+<svg style="enable-background: new 0 0 191.6 1215.4" version="1.1" viewbox="0 0 191.6 1215.4" x="0px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" y="0px">
+<g transform="translate(0.000000,1280.000000) scale(0.100000,-0.100000)">
+<path d="M227.7,12788.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,12801.6,289.7,12808.6,227.7,12788.6z"></path>
+<path d="M1507.7,12788.6c-151-50-253-216-222-362c25-119,136-230,254-255c194-41,395,142,375,339c-11,105-90,213-190,262        C1663.7,12801.6,1569.7,12808.6,1507.7,12788.6z"></path>
+<path d="M227.7,11508.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,11521.6,289.7,11528.6,227.7,11508.6z"></path>
+<path d="M1507.7,11508.6c-151-50-253-216-222-362c25-119,136-230,254-255c194-41,395,142,375,339c-11,105-90,213-190,262        C1663.7,11521.6,1569.7,11528.6,1507.7,11508.6z"></path>
+<path d="M227.7,10228.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,10241.6,289.7,10248.6,227.7,10228.6z"></path>
+<path d="M1507.7,10228.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,10241.6,1569.7,10248.6,1507.7,10228.6z"></path>
+<path d="M227.7,8948.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,8961.6,289.7,8968.6,227.7,8948.6z"></path>
+<path d="M1507.7,8948.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,8961.6,1569.7,8968.6,1507.7,8948.6z"></path>
+<path d="M227.7,7668.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,7681.6,289.7,7688.6,227.7,7668.6z"></path>
+<path d="M1507.7,7668.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,7681.6,1569.7,7688.6,1507.7,7668.6z"></path>
+<path d="M227.7,6388.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,6401.6,289.7,6408.6,227.7,6388.6z"></path>
+<path d="M1507.7,6388.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,6401.6,1569.7,6408.6,1507.7,6388.6z"></path>
+<path d="M227.7,5108.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,5121.6,289.7,5128.6,227.7,5108.6z"></path>
+<path d="M1507.7,5108.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,5121.6,1569.7,5128.6,1507.7,5108.6z"></path>
+<path d="M227.7,3828.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,3841.6,289.7,3848.6,227.7,3828.6z"></path>
+<path d="M1507.7,3828.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,3841.6,1569.7,3848.6,1507.7,3828.6z"></path>
+<path d="M227.7,2548.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,2561.6,289.7,2568.6,227.7,2548.6z"></path>
+<path d="M1507.7,2548.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,2561.6,1569.7,2568.6,1507.7,2548.6z"></path>
+<path d="M227.7,1268.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,1281.6,289.7,1288.6,227.7,1268.6z"></path>
+<path d="M1507.7,1268.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,1281.6,1569.7,1288.6,1507.7,1268.6z"></path>
+</g>
+</svg>
+<!-- END of SVG dots-->
+</div>
+<div class="dots-2">
+<!-- SVG Dots-->
+<svg style="enable-background: new 0 0 191.6 1215.4" version="1.1" viewbox="0 0 191.6 1215.4" x="0px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" y="0px">
+<g transform="translate(0.000000,1280.000000) scale(0.100000,-0.100000)">
+<path d="M227.7,12788.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,12801.6,289.7,12808.6,227.7,12788.6z"></path>
+<path d="M1507.7,12788.6c-151-50-253-216-222-362c25-119,136-230,254-255c194-41,395,142,375,339c-11,105-90,213-190,262        C1663.7,12801.6,1569.7,12808.6,1507.7,12788.6z"></path>
+<path d="M227.7,11508.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,11521.6,289.7,11528.6,227.7,11508.6z"></path>
+<path d="M1507.7,11508.6c-151-50-253-216-222-362c25-119,136-230,254-255c194-41,395,142,375,339c-11,105-90,213-190,262        C1663.7,11521.6,1569.7,11528.6,1507.7,11508.6z"></path>
+<path d="M227.7,10228.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,10241.6,289.7,10248.6,227.7,10228.6z"></path>
+<path d="M1507.7,10228.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,10241.6,1569.7,10248.6,1507.7,10228.6z"></path>
+<path d="M227.7,8948.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,8961.6,289.7,8968.6,227.7,8948.6z"></path>
+<path d="M1507.7,8948.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,8961.6,1569.7,8968.6,1507.7,8948.6z"></path>
+<path d="M227.7,7668.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,7681.6,289.7,7688.6,227.7,7668.6z"></path>
+<path d="M1507.7,7668.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,7681.6,1569.7,7688.6,1507.7,7668.6z"></path>
+<path d="M227.7,6388.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,6401.6,289.7,6408.6,227.7,6388.6z"></path>
+<path d="M1507.7,6388.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,6401.6,1569.7,6408.6,1507.7,6388.6z"></path>
+<path d="M227.7,5108.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,5121.6,289.7,5128.6,227.7,5108.6z"></path>
+<path d="M1507.7,5108.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,5121.6,1569.7,5128.6,1507.7,5108.6z"></path>
+<path d="M227.7,3828.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,3841.6,289.7,3848.6,227.7,3828.6z"></path>
+<path d="M1507.7,3828.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,3841.6,1569.7,3848.6,1507.7,3828.6z"></path>
+<path d="M227.7,2548.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,2561.6,289.7,2568.6,227.7,2548.6z"></path>
+<path d="M1507.7,2548.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,2561.6,1569.7,2568.6,1507.7,2548.6z"></path>
+<path d="M227.7,1268.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,1281.6,289.7,1288.6,227.7,1268.6z"></path>
+<path d="M1507.7,1268.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,1281.6,1569.7,1288.6,1507.7,1268.6z"></path>
+</g>
+</svg>
+<!-- END of SVG dots-->
+</div>
+<div class="dots-3">
+<!-- SVG Dots-->
+<svg style="enable-background: new 0 0 191.6 1215.4" version="1.1" viewbox="0 0 191.6 1215.4" x="0px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" y="0px">
+<g transform="translate(0.000000,1280.000000) scale(0.100000,-0.100000)">
+<path d="M227.7,12788.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,12801.6,289.7,12808.6,227.7,12788.6z"></path>
+<path d="M1507.7,12788.6c-151-50-253-216-222-362c25-119,136-230,254-255c194-41,395,142,375,339c-11,105-90,213-190,262        C1663.7,12801.6,1569.7,12808.6,1507.7,12788.6z"></path>
+<path d="M227.7,11508.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,11521.6,289.7,11528.6,227.7,11508.6z"></path>
+<path d="M1507.7,11508.6c-151-50-253-216-222-362c25-119,136-230,254-255c194-41,395,142,375,339c-11,105-90,213-190,262        C1663.7,11521.6,1569.7,11528.6,1507.7,11508.6z"></path>
+<path d="M227.7,10228.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,10241.6,289.7,10248.6,227.7,10228.6z"></path>
+<path d="M1507.7,10228.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,10241.6,1569.7,10248.6,1507.7,10228.6z"></path>
+<path d="M227.7,8948.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,8961.6,289.7,8968.6,227.7,8948.6z"></path>
+<path d="M1507.7,8948.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,8961.6,1569.7,8968.6,1507.7,8948.6z"></path>
+<path d="M227.7,7668.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,7681.6,289.7,7688.6,227.7,7668.6z"></path>
+<path d="M1507.7,7668.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,7681.6,1569.7,7688.6,1507.7,7668.6z"></path>
+<path d="M227.7,6388.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,6401.6,289.7,6408.6,227.7,6388.6z"></path>
+<path d="M1507.7,6388.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,6401.6,1569.7,6408.6,1507.7,6388.6z"></path>
+<path d="M227.7,5108.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,5121.6,289.7,5128.6,227.7,5108.6z"></path>
+<path d="M1507.7,5108.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,5121.6,1569.7,5128.6,1507.7,5108.6z"></path>
+<path d="M227.7,3828.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,3841.6,289.7,3848.6,227.7,3828.6z"></path>
+<path d="M1507.7,3828.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,3841.6,1569.7,3848.6,1507.7,3828.6z"></path>
+<path d="M227.7,2548.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,2561.6,289.7,2568.6,227.7,2548.6z"></path>
+<path d="M1507.7,2548.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,2561.6,1569.7,2568.6,1507.7,2548.6z"></path>
+<path d="M227.7,1268.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,1281.6,289.7,1288.6,227.7,1268.6z"></path>
+<path d="M1507.7,1268.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,1281.6,1569.7,1288.6,1507.7,1268.6z"></path>
+</g>
+</svg>
+<!-- END of SVG dots-->
+</div>
+<div class="dots-4">
+<!-- SVG Dots-->
+<svg style="enable-background: new 0 0 191.6 1215.4" version="1.1" viewbox="0 0 191.6 1215.4" x="0px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" y="0px">
+<g transform="translate(0.000000,1280.000000) scale(0.100000,-0.100000)">
+<path d="M227.7,12788.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,12801.6,289.7,12808.6,227.7,12788.6z"></path>
+<path d="M1507.7,12788.6c-151-50-253-216-222-362c25-119,136-230,254-255c194-41,395,142,375,339c-11,105-90,213-190,262        C1663.7,12801.6,1569.7,12808.6,1507.7,12788.6z"></path>
+<path d="M227.7,11508.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,11521.6,289.7,11528.6,227.7,11508.6z"></path>
+<path d="M1507.7,11508.6c-151-50-253-216-222-362c25-119,136-230,254-255c194-41,395,142,375,339c-11,105-90,213-190,262        C1663.7,11521.6,1569.7,11528.6,1507.7,11508.6z"></path>
+<path d="M227.7,10228.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,10241.6,289.7,10248.6,227.7,10228.6z"></path>
+<path d="M1507.7,10228.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,10241.6,1569.7,10248.6,1507.7,10228.6z"></path>
+<path d="M227.7,8948.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,8961.6,289.7,8968.6,227.7,8948.6z"></path>
+<path d="M1507.7,8948.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,8961.6,1569.7,8968.6,1507.7,8948.6z"></path>
+<path d="M227.7,7668.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,7681.6,289.7,7688.6,227.7,7668.6z"></path>
+<path d="M1507.7,7668.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,7681.6,1569.7,7688.6,1507.7,7668.6z"></path>
+<path d="M227.7,6388.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,6401.6,289.7,6408.6,227.7,6388.6z"></path>
+<path d="M1507.7,6388.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,6401.6,1569.7,6408.6,1507.7,6388.6z"></path>
+<path d="M227.7,5108.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,5121.6,289.7,5128.6,227.7,5108.6z"></path>
+<path d="M1507.7,5108.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,5121.6,1569.7,5128.6,1507.7,5108.6z"></path>
+<path d="M227.7,3828.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,3841.6,289.7,3848.6,227.7,3828.6z"></path>
+<path d="M1507.7,3828.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,3841.6,1569.7,3848.6,1507.7,3828.6z"></path>
+<path d="M227.7,2548.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,2561.6,289.7,2568.6,227.7,2548.6z"></path>
+<path d="M1507.7,2548.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,2561.6,1569.7,2568.6,1507.7,2548.6z"></path>
+<path d="M227.7,1268.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C383.7,1281.6,289.7,1288.6,227.7,1268.6z"></path>
+<path d="M1507.7,1268.6c-105-35-200-141-222-248c-43-206,163-412,369-369c155,32,275,190,260,339c-11,105-90,213-190,262        C1663.7,1281.6,1569.7,1288.6,1507.7,1268.6z"></path>
+</g>
+</svg>
+<!-- END of SVG dots-->
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- About Section-->
 
-<!-- FEATURES -->
-<section class="features">
-  <div class="features-head">
-    <div class="section-label">Fitur Utama</div>
-    <h2 class="section-title">Teknologi Deteksi Cerdas</h2>
-    <p class="section-sub" style="margin:0 auto; text-align:center;">Sistem pengenalan bahasa isyarat berbasis computer vision dan machine learning untuk mendeteksi gesture secara real-time melalui kamera.</p>
-  </div>
-
-  <div class="features-grid">
-
-  <div class="feat-card">
-    <div class="feat-icon">
-      <i class="bi bi-camera-video"></i>
-    </div>
-    <div class="feat-title">Deteksi Real-Time</div>
-    <div class="feat-desc">
-      Analisis gesture tangan secara langsung menggunakan MediaPipe dan model machine learning yang dioptimalkan.
-    </div>
-  </div>
-
-  <div class="feat-card">
-    <div class="feat-icon">
-      <i class="bi bi-collection"></i>
-    </div>
-    <div class="feat-title">Gesture Library</div>
-    <div class="feat-desc">
-      Panduan visual huruf, angka, dan gesture kata lengkap sebagai referensi pembelajaran bahasa isyarat.
-    </div>
-  </div>
-
-  <div class="feat-card">
-    <div class="feat-icon">
-      <i class="bi bi-bar-chart"></i>
-    </div>
-    <div class="feat-title">Confidence Score</div>
-    <div class="feat-desc">
-      Setiap hasil prediksi dilengkapi tingkat keyakinan model untuk membantu validasi hasil deteksi.
-    </div>
-  </div>
-
-  <div class="feat-card">
-    <div class="feat-icon">
-      <i class="bi bi-arrow-repeat"></i>
-    </div>
-    <div class="feat-title">Mode Deteksi</div>
-    <div class="feat-desc">
-      Pergantian mode deteksi huruf, angka, dan kata dapat dilakukan secara cepat dan otomatis.
-    </div>
-  </div>
-
+<section class="bg-light py-5">
+<div class="container px-5">
+<div class="text-center mb-5">
+<h2 class="display-5 fw-bolder"><span class="text-gradient d-inline">SignLens</span></h2>
+<p class="lead text-muted mb-0">Sistem pengenalan gesture bahasa isyarat Indonesia berbasis Computer Vision dan Machine Learning untuk mendeteksi huruf, angka, dan kata secara otomatis melalui kamera.</p>
+</div>
 </div>
 </section>
-
-<!-- CTA -->
-<section class="cta-section">
-  <div class="cta-inner">
-    <div class="cta-glow"></div>
-    <h2 class="cta-title">Siap mencoba?</h2>
-    <p class="cta-desc">Aktifkan kamera dan mulai deteksi bahasa isyarat sekarang juga.</p>
-    <div class="cta-buttons">
-      <a href="deteksi.html" class="btn btn-primary">▶&nbsp; Buka Halaman Deteksi</a>
-      <a href="tentang.html" class="btn" style="background:transparent;color:#6b9a74;border:1.5px solid #2d4a34;">Tentang Proyek</a>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <p>SignLens © 2026 · Built with Computer Vision & Machine Learning · Nadila Arsyifa</p>
-</footer>
-
-<script>
-  // Demo: cycle letters on hero card
-  const letters = ['A','B','C','S','I','K','A','T','A'];
-  const confs   = ['96.4','88.7','92.1','95.3','79.4','91.8','97.2','84.5','90.0'];
-  let idx = 0;
-  setInterval(() => {
-    idx = (idx + 1) % letters.length;
-    const el = document.getElementById('demo-letter');
-    const cf = document.getElementById('demo-conf');
-    const bar = document.getElementById('demo-bar');
-    if (el) el.textContent = letters[idx];
-    if (cf) cf.textContent = confs[idx] + '%';
-    if (bar) bar.style.width = confs[idx] + '%';
-  }, 1800);
-</script>
-
+</main>
+<!-- Footer-->
+<footer class="bg-white py-4 mt-auto border-top"><div class="container px-5"><div class="row align-items-center justify-content-between flex-column flex-sm-row gap-2"><div class="col-auto"><div class="small m-0">Copyright © SignLens 2026</div></div><div class="col-auto small"><a class="footer-link" href="index.html">Beranda</a><span class="mx-1">·</span><a class="footer-link" href="deteksi.html">Deteksi</a><span class="mx-1">·</span><a class="footer-link" href="tentang.html">Tentang</a></div></div></div></footer>
+<!-- Bootstrap core JS-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Core theme JS-->
+<script src="js/scripts.js"></script>
 </body>
 </html>
