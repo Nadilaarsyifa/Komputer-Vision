@@ -45,6 +45,7 @@ final_pred_angka      = "-"
 final_conf_angka      = 0.0
 frame_counter_angka   = 0
 no_hand_counter_angka = 0
+recording_angka       = False
 
 
 # ==========================================================
@@ -341,8 +342,6 @@ while True:
         result = hands.process(rgb)
         hand_detected = False
 
-        frame_counter_angka += 1
-
         if result.multi_hand_landmarks:
             hand_detected = True
             no_hand_counter_angka = 0
@@ -355,24 +354,38 @@ while True:
                 mp_hands.HAND_CONNECTIONS
             )
 
-            landmark_data = normalize_landmarks_angka_video(hand)
-            sequence_angka.append(landmark_data)
+            # Hanya simpan frame saat recording aktif
+            if recording_angka:
+                landmark_data = normalize_landmarks_angka_video(hand)
+                sequence_angka.append(landmark_data)
+
+                cv2.putText(
+                    frame,
+                    f"RECORDING {len(sequence_angka)}/{SEQUENCE_LENGTH_ANGKA}",
+                    (10, 160),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (0, 0, 255),
+                    2
+                )
 
         else:
             no_hand_counter_angka += 1
 
-        # Kalau tangan hilang beberapa frame, kosongkan prediksi
-        if no_hand_counter_angka >= NO_HAND_LIMIT_ANGKA:
-            reset_angka_video()
-            pred = "-"
-            conf_text = ""
+        if not recording_angka:
+            cv2.putText(
+                frame,
+                "PRESS SPACE TO RECORD",
+                (10, 160),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.8,
+                (0, 255, 255),
+                2
+            )
 
-        # Prediksi hanya kalau tangan terdeteksi, sequence penuh, dan tidak setiap frame
-        if (
-            hand_detected
-            and len(sequence_angka) == SEQUENCE_LENGTH_ANGKA
-            and frame_counter_angka % PREDICT_EVERY_ANGKA == 0
-        ):
+        # Prediksi setelah 30 frame terkumpul
+        if recording_angka and len(sequence_angka) == SEQUENCE_LENGTH_ANGKA:
+
             input_data = np.expand_dims(
                 np.array(sequence_angka, dtype=np.float32),
                 axis=0
@@ -380,21 +393,28 @@ while True:
 
             proba = model_angka_video.predict(input_data, verbose=0)[0]
             max_conf = float(np.max(proba))
-            conf_text = f"{max_conf*100:.0f}%"
 
             if max_conf >= CONF_THRESHOLD_ANGKA:
                 pred_encoded = int(np.argmax(proba))
-                raw_pred = label_encoder_angka_video.inverse_transform([pred_encoded])[0]
-
-                pred_buffer_angka.append(raw_pred)
-                final_pred_angka = Counter(pred_buffer_angka).most_common(1)[0][0]
+                final_pred_angka = label_encoder_angka_video.inverse_transform(
+                    [pred_encoded]
+                )[0]
                 final_conf_angka = max_conf
             else:
-                pred_buffer_angka.clear()
                 final_pred_angka = "-"
                 final_conf_angka = 0.0
 
+            pred = final_pred_angka
+
+            if final_conf_angka > 0:
+                conf_text = f"{final_conf_angka*100:.0f}%"
+
+            # Stop recording setelah prediksi
+            recording_angka = False
+            sequence_angka.clear()
+
         pred = final_pred_angka
+
         if final_conf_angka > 0:
             conf_text = f"{final_conf_angka*100:.0f}%"
 
@@ -438,8 +458,15 @@ while True:
     if conf_text:
         cv2.putText(frame, f"CONF  : {conf_text}",
                     (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 200, 0), 2)
-    cv2.putText(frame, "A=Huruf  N=Angka  K=Kata  Q=Keluar",
-                (10, 460), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+    cv2.putText(
+        frame,
+        "A=Huruf  N=Angka  K=Kata  SPACE=Record  Q=Keluar",
+        (10, 460),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.55,
+        (255, 255, 255),
+        2
+    )
 
     cv2.imshow("Final Project Sign Language", frame)
 
@@ -458,6 +485,12 @@ while True:
         reset_angka_video()
     elif key == ord('q'):
         break
+    elif key == 32:  # SPACE
+        if mode == "angka":
+            sequence_angka.clear()
+            recording_angka = True
+            final_pred_angka = "-"
+            final_conf_angka = 0.0
 
 cap.release()
 hands.close()

@@ -291,7 +291,7 @@ def predict_frame(frame: np.ndarray, mode: str) -> dict:
     frame = cv2.resize(frame, (640, 480))
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    pred = "-"
+    pred = "-"    # Setelah model menghasilkan prediksi, mengembalikan kepada FastAPI
     confidence = 0.0
 
     if mode == "huruf":

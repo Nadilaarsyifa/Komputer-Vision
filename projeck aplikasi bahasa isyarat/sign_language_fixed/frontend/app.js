@@ -151,7 +151,9 @@ btnStart.addEventListener("click", async () => {
   }
 });
 
-// ==========================================================
+// intergrasi antara sistem dan modenya
+
+bagaimaana proses nya dari inputan ke modelnya , alurnya gimana, kameraa soistem API API mode hasinya apa, dikembalikan ituu gimana==========================================================
 // STOP KAMERA
 // ==========================================================
 btnStop.addEventListener("click", stopCamera);
