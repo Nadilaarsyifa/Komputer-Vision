@@ -2,8 +2,7 @@
 // KONFIGURASI
 // ==========================================================
 const API_URL = "http://127.0.0.1:8000/predict";
-const CAPTURE_INTERVAL_MS = 150;
-const NUMBER_SEQUENCE_LENGTH = 30;
+const CAPTURE_INTERVAL_MS = 150; // mode angka video perlu frame lebih rapat untuk sequence 30 frame
 
 // ==========================================================
 // STATE
@@ -15,11 +14,6 @@ let stream = null;
 let activeKataGuide = null;
 let isPredicting = false;
 
-// State khusus mode angka video / BiLSTM
-let isRecordingNumber = false;
-let numberFrameCount = 0;
-let resetNumberOnNextFrame = false;
-
 // ==========================================================
 // DOM ELEMENTS
 // ==========================================================
@@ -28,7 +22,6 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const btnStart = document.getElementById("btn-start");
 const btnStop = document.getElementById("btn-stop");
-const btnRecordNumber = document.getElementById("btn-record-number");
 const displayMode = document.getElementById("display-mode");
 const displayRes = document.getElementById("display-result");
 const displayConf = document.getElementById("display-confidence");
@@ -37,7 +30,6 @@ const statusDot = document.getElementById("status-dot");
 const camModeBadge = document.getElementById("cam-mode-badge");
 const noCam = document.getElementById("no-cam");
 const kataInfo = document.getElementById("kata-info");
-const angkaInfo = document.getElementById("angka-info");
 const modeButtons = document.querySelectorAll(".mode-btn");
 
 const guideHuruf = document.getElementById("guide-huruf");
@@ -51,9 +43,7 @@ modeButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     modeButtons.forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
-
     currentMode = btn.dataset.mode;
-    resetNumberRecordingState();
 
     const modeLabel = currentMode.toUpperCase();
     displayMode.textContent = modeLabel;
@@ -65,75 +55,9 @@ modeButtons.forEach((btn) => {
       kataInfo.style.display = currentMode === "kata" ? "block" : "none";
     }
 
-    if (angkaInfo) {
-      angkaInfo.style.display = currentMode === "angka" ? "block" : "none";
-    }
-
-    updateRecordNumberButton();
     updateGuideBlock(currentMode);
-
-    if (isRunning && currentMode === "angka") {
-      setStatus("Mode angka aktif. Klik Rekam Angka 30 Frame.", "active");
-    } else if (isRunning) {
-      setStatus("Mendeteksi...", "active");
-    }
   });
 });
-
-// ==========================================================
-// TOMBOL REKAM ANGKA
-// ==========================================================
-if (btnRecordNumber) {
-  btnRecordNumber.addEventListener("click", () => {
-    if (!isRunning) {
-      setStatus("Aktifkan kamera terlebih dahulu.", "error");
-      return;
-    }
-
-    if (currentMode !== "angka") {
-      setStatus("Tombol rekam hanya untuk mode angka.", "error");
-      return;
-    }
-
-    startNumberRecording();
-  });
-}
-
-function startNumberRecording() {
-  isRecordingNumber = true;
-  numberFrameCount = 0;
-  resetNumberOnNextFrame = true;
-
-  displayRes.textContent = "–";
-  if (displayConf) displayConf.textContent = `0/${NUMBER_SEQUENCE_LENGTH} frame`;
-
-  updateRecordNumberButton();
-  setStatus(`Merekam angka... 0/${NUMBER_SEQUENCE_LENGTH}`, "active");
-}
-
-function resetNumberRecordingState() {
-  isRecordingNumber = false;
-  numberFrameCount = 0;
-  resetNumberOnNextFrame = true;
-  updateRecordNumberButton();
-}
-
-function updateRecordNumberButton() {
-  if (!btnRecordNumber) return;
-
-  const isNumberMode = currentMode === "angka";
-  btnRecordNumber.classList.toggle("d-none", !isNumberMode);
-
-  if (!isNumberMode) return;
-
-  btnRecordNumber.disabled = !isRunning || isRecordingNumber;
-
-  if (isRecordingNumber) {
-    btnRecordNumber.innerHTML = `<i class="bi bi-hourglass-split me-2"></i>Merekam ${numberFrameCount}/${NUMBER_SEQUENCE_LENGTH}`;
-  } else {
-    btnRecordNumber.innerHTML = `<i class="bi bi-record-circle me-2"></i>Rekam Angka 30 Frame`;
-  }
-}
 
 // ==========================================================
 // PANDUAN
@@ -197,52 +121,8 @@ function showKataGuide(kata) {
   });
 }
 
-function showHurufGuide(huruf) {
-  const wrap = document.getElementById("img-wrap-huruf");
-  const img = document.getElementById("huruf-guide-img");
-  const title = document.getElementById("huruf-preview-title");
-  const caption = document.getElementById("huruf-guide-caption");
-
-  if (!wrap || !img) return;
-
-  img.src = `images/huruf_${huruf}.jpg`;
-  img.alt = `Huruf ${huruf}`;
-
-  if (title) {
-    title.textContent = `Panduan Huruf ${huruf}`;
-  }
-
-  if (caption) {
-    caption.textContent = `Gerakan bahasa isyarat huruf ${huruf}`;
-  }
-
-  wrap.classList.remove("hidden");
-}
-
-function showAngkaGuide(angka) {
-  const wrap = document.getElementById("img-wrap-angka");
-  const video = document.getElementById("angka-guide-video");
-  const title = document.getElementById("angka-preview-title");
-  const caption = document.getElementById("angka-guide-caption");
-
-  if (!wrap || !video) return;
-
-  video.src = `videos/angka_${angka}.mp4`;
-  video.load();
-
-  if (title) {
-    title.textContent = `Panduan Angka ${angka}`;
-  }
-
-  if (caption) {
-    caption.textContent = `Gerakan bahasa isyarat angka ${angka}`;
-  }
-
-  wrap.classList.remove("hidden");
-}
-
-window.showHurufGuide = showHurufGuide;
-window.showAngkaGuide = showAngkaGuide;
+window.toggleGuide = toggleGuide;
+window.showKataGuide = showKataGuide;
 
 // ==========================================================
 // START KAMERA
@@ -264,22 +144,13 @@ btnStart.addEventListener("click", async () => {
     btnStart.disabled = true;
     btnStop.disabled = false;
 
-    updateRecordNumberButton();
-
-    if (currentMode === "angka") {
-      setStatus("Mode angka aktif. Klik Rekam Angka 30 Frame.", "active");
-    } else {
-      setStatus("Mendeteksi...", "active");
-    }
-
-    clearInterval(intervalId);
+    setStatus("Mendeteksi...", "active");
     intervalId = setInterval(sendFrame, CAPTURE_INTERVAL_MS);
   } catch (err) {
     setStatus("Gagal akses kamera: " + err.message, "error");
   }
 });
 
-// ==========================================================
 // STOP KAMERA
 // ==========================================================
 btnStop.addEventListener("click", stopCamera);
@@ -298,9 +169,6 @@ function stopCamera() {
   btnStart.disabled = false;
   btnStop.disabled = true;
 
-  resetNumberRecordingState();
-  updateRecordNumberButton();
-
   displayRes.textContent = "–";
   if (displayConf) displayConf.textContent = "–";
   setStatus("Kamera dihentikan", "");
@@ -312,9 +180,6 @@ function stopCamera() {
 async function sendFrame() {
   if (!isRunning || isPredicting || video.videoWidth === 0) return;
 
-  // Mode angka dibuat seperti kode realtime: hanya kirim frame saat tombol rekam ditekan.
-  if (currentMode === "angka" && !isRecordingNumber) return;
-
   isPredicting = true;
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
@@ -322,23 +187,11 @@ async function sendFrame() {
 
   const base64 = canvas.toDataURL("image/jpeg", 0.7).split(",")[1];
 
-  const payload = {
-    image: base64,
-    mode: currentMode,
-  };
-
-  if (currentMode === "angka") {
-    payload.record_number = true;
-    payload.reset_number = resetNumberOnNextFrame;
-  }
-
-  const requestMode = currentMode;
-
   try {
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ image: base64, mode: currentMode }),
     });
 
     if (!response.ok) {
@@ -348,42 +201,14 @@ async function sendFrame() {
     }
 
     const data = await response.json();
-
-    if (requestMode === "angka") {
-      handleNumberResponse(data);
-    } else {
-      displayRes.textContent = data.result || "–";
-      if (displayConf) displayConf.textContent = data.confidence !== undefined ? data.confidence + "%" : "–";
-      setStatus("Mendeteksi...", "active");
-    }
+    displayRes.textContent = data.result || "–";
+    if (displayConf) displayConf.textContent = data.confidence !== undefined ? data.confidence + "%" : "–";
+    setStatus("Mendeteksi...", "active");
   } catch (err) {
     setStatus("Tidak bisa koneksi ke backend", "error");
   } finally {
-    resetNumberOnNextFrame = false;
     isPredicting = false;
   }
-}
-
-function handleNumberResponse(data) {
-  numberFrameCount = Number(data.frames_collected || 0);
-
-  if (data.done) {
-    isRecordingNumber = false;
-    numberFrameCount = 0;
-
-    displayRes.textContent = data.result || "–";
-    if (displayConf) displayConf.textContent = data.confidence !== undefined ? data.confidence + "%" : "–";
-
-    updateRecordNumberButton();
-    setStatus("Prediksi angka selesai. Klik Rekam Angka 30 Frame untuk mencoba lagi.", "active");
-    return;
-  }
-
-  displayRes.textContent = "–";
-  if (displayConf) displayConf.textContent = `${numberFrameCount}/${NUMBER_SEQUENCE_LENGTH} frame`;
-
-  updateRecordNumberButton();
-  setStatus(data.message || `Merekam angka... ${numberFrameCount}/${NUMBER_SEQUENCE_LENGTH}`, "active");
 }
 
 // ==========================================================
@@ -401,4 +226,3 @@ function setStatus(text, type) {
 }
 
 updateGuideBlock(currentMode);
-updateRecordNumberButton();

@@ -1,5 +1,4 @@
 import base64
-
 import cv2
 import numpy as np
 from fastapi import FastAPI, HTTPException
@@ -7,7 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from predictor import predict_frame
-
 
 app = FastAPI(title="Sign Language Recognition API")
 
@@ -19,22 +17,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 class PredictRequest(BaseModel):
     image: str
     mode: str
 
-    # Khusus mode angka video/BiLSTM.
-    # record_number=True artinya frame ini ikut direkam ke sequence 30 frame.
-    # reset_number=True dipakai saat tombol Rekam Angka baru ditekan.
-    record_number: bool = False
-    reset_number: bool = False
-
-
 @app.get("/")
 def health_check():
     return {"status": "ok", "message": "Sign Language API berjalan"}
-
 
 @app.post("/predict")
 def predict(req: PredictRequest):
@@ -53,12 +42,7 @@ def predict(req: PredictRequest):
         if frame is None:
             raise ValueError("Gagal membaca gambar dari frontend")
 
-        result = predict_frame(
-            frame,
-            req.mode,
-            record_number=req.record_number,
-            reset_number=req.reset_number,
-        )
+        result = predict_frame(frame, req.mode)
         return result
 
     except Exception as e:

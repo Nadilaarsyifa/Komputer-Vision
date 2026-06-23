@@ -1,13 +1,12 @@
 import os
-import pickle
 import warnings
 from collections import Counter, deque
 
 import cv2
 import joblib
+import pickle
 import mediapipe as mp
 import numpy as np
-from tensorflow.keras.models import load_model
 
 warnings.filterwarnings("ignore")
 
@@ -17,10 +16,13 @@ warnings.filterwarnings("ignore")
 BASE_DIR = os.path.dirname(__file__)
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
+# Nama file disesuaikan dengan folder models kamu
 model_huruf = joblib.load(os.path.join(MODEL_DIR, "model_bisindo_alfabet.pkl"))
 label_encoder_huruf = joblib.load(os.path.join(MODEL_DIR, "label_encoder_alfabet.pkl"))
 
-# Model angka memakai video sequence / BiLSTM
+from tensorflow.keras.models import load_model
+
+# Model angka revisi: video sequence / BiLSTM
 model_angka_video = load_model(os.path.join(MODEL_DIR, "model_angka_video_laptop.h5"), compile=False)
 with open(os.path.join(MODEL_DIR, "label_encoder_angka_video.pkl"), "rb") as f:
     label_encoder_angka_video = pickle.load(f)
@@ -42,14 +44,16 @@ last_mode = None
 # ==========================================================
 SEQUENCE_LENGTH_ANGKA = 30
 FEATURE_SIZE_ANGKA = 63
+PREDICT_EVERY_ANGKA = 5
 NO_HAND_LIMIT_ANGKA = 10
 CONF_THRESHOLD_ANGKA = 0.70
 
 sequence_angka = deque(maxlen=SEQUENCE_LENGTH_ANGKA)
+pred_buffer_angka = deque(maxlen=10)
 final_pred_angka = "-"
 final_conf_angka = 0.0
+frame_counter_angka = 0
 no_hand_counter_angka = 0
-recording_angka = False
 
 # ==========================================================
 # MEDIAPIPE
@@ -140,12 +144,13 @@ def normalize_landmarks_angka_video(hand_landmarks):
 
 
 def reset_angka_video():
-    global final_pred_angka, final_conf_angka, no_hand_counter_angka, recording_angka
+    global final_pred_angka, final_conf_angka, frame_counter_angka, no_hand_counter_angka
     sequence_angka.clear()
+    pred_buffer_angka.clear()
     final_pred_angka = "-"
     final_conf_angka = 0.0
+    frame_counter_angka = 0
     no_hand_counter_angka = 0
-    recording_angka = False
 
 
 def extract_kata_features(result):
@@ -276,61 +281,17 @@ def extract_kata_features(result):
     return data  # 129 fitur
 
 
-def _predict_angka_from_sequence():
-    global final_pred_angka, final_conf_angka, recording_angka
-
-    input_data = np.expand_dims(
-        np.array(sequence_angka, dtype=np.float32),
-        axis=0,
-    )
-
-    proba = model_angka_video.predict(input_data, verbose=0)[0]
-    confidence = float(np.max(proba))
-
-    if confidence >= CONF_THRESHOLD_ANGKA:
-        pred_encoded = int(np.argmax(proba))
-        final_pred_angka = str(label_encoder_angka_video.inverse_transform([pred_encoded])[0])
-        final_conf_angka = confidence
-    else:
-        final_pred_angka = "-"
-        final_conf_angka = 0.0
-
-    sequence_angka.clear()
-    recording_angka = False
-
-    return {
-        "result": final_pred_angka,
-        "confidence": round(final_conf_angka * 100, 2),
-        "recording": False,
-        "done": True,
-        "frames_collected": 0,
-        "frames_required": SEQUENCE_LENGTH_ANGKA,
-        "message": "Prediksi angka selesai.",
-    }
-
-
 # ==========================================================
 # FUNGSI UTAMA UNTUK API
 # ==========================================================
-def predict_frame(
-    frame: np.ndarray,
-    mode: str,
-    record_number: bool = False,
-    reset_number: bool = False,
-) -> dict:
-    global final_pred_angka, final_conf_angka, no_hand_counter_angka, recording_angka
-
+def predict_frame(frame: np.ndarray, mode: str) -> dict:
     reset_history_if_mode_changed(mode)
-
-    if mode == "angka" and reset_number:
-        reset_angka_video()
-        recording_angka = True
 
     frame = cv2.flip(frame, 1)
     frame = cv2.resize(frame, (640, 480))
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    pred = "-"
+    pred = "-"    # Setelah model menghasilkan prediksi, mengembalikan kepada FastAPI
     confidence = 0.0
 
     if mode == "huruf":
@@ -361,26 +322,17 @@ def predict_frame(
             pred_history.clear()
 
     elif mode == "angka":
-        # Mode angka web dibuat sama seperti kode realtime:
-        # tombol Rekam Angka menggantikan SPACE, lalu backend hanya mengambil 30 frame valid.
-        if not record_number:
-            return {
-                "result": final_pred_angka,
-                "confidence": round(final_conf_angka * 100, 2),
-                "recording": False,
-                "done": False,
-                "frames_collected": len(sequence_angka),
-                "frames_required": SEQUENCE_LENGTH_ANGKA,
-                "message": "Klik tombol Rekam Angka 30 Frame untuk mulai.",
-            }
+        global final_pred_angka, final_conf_angka, frame_counter_angka, no_hand_counter_angka
 
-        recording_angka = True
         result = hands.process(rgb)
+        hand_detected = False
+        frame_counter_angka += 1
 
         if result.multi_hand_landmarks:
+            hand_detected = True
             no_hand_counter_angka = 0
 
-            # Ambil 1 tangan pertama, sama seperti kode realtime video sequence.
+            # Ambil 1 tangan pertama, sama seperti kode training/testing video.
             hand = result.multi_hand_landmarks[0]
             landmark_data = normalize_landmarks_angka_video(hand)
 
@@ -389,32 +341,35 @@ def predict_frame(
         else:
             no_hand_counter_angka += 1
 
-        if len(sequence_angka) == SEQUENCE_LENGTH_ANGKA:
-            return _predict_angka_from_sequence()
-
         if no_hand_counter_angka >= NO_HAND_LIMIT_ANGKA:
-            # Tidak mematikan recording, hanya membersihkan sequence yang belum lengkap.
-            # Frontend tetap merekam sampai tangan terdeteksi dan 30 frame valid terkumpul.
-            sequence_angka.clear()
-            return {
-                "result": "-",
-                "confidence": 0.0,
-                "recording": True,
-                "done": False,
-                "frames_collected": 0,
-                "frames_required": SEQUENCE_LENGTH_ANGKA,
-                "message": "Tangan belum terdeteksi. Arahkan tangan ke kamera.",
-            }
+            reset_angka_video()
+        elif (
+            hand_detected
+            and len(sequence_angka) == SEQUENCE_LENGTH_ANGKA
+            and frame_counter_angka % PREDICT_EVERY_ANGKA == 0
+        ):
+            input_data = np.expand_dims(
+                np.array(sequence_angka, dtype=np.float32),
+                axis=0,
+            )
 
-        return {
-            "result": "-",
-            "confidence": 0.0,
-            "recording": True,
-            "done": False,
-            "frames_collected": len(sequence_angka),
-            "frames_required": SEQUENCE_LENGTH_ANGKA,
-            "message": f"Merekam angka... {len(sequence_angka)}/{SEQUENCE_LENGTH_ANGKA}",
-        }
+            proba = model_angka_video.predict(input_data, verbose=0)[0]
+            confidence = float(np.max(proba))
+
+            if confidence >= CONF_THRESHOLD_ANGKA:
+                pred_encoded = int(np.argmax(proba))
+                raw_pred = label_encoder_angka_video.inverse_transform([pred_encoded])[0]
+
+                pred_buffer_angka.append(str(raw_pred))
+                final_pred_angka = Counter(pred_buffer_angka).most_common(1)[0][0]
+                final_conf_angka = confidence
+            else:
+                pred_buffer_angka.clear()
+                final_pred_angka = "-"
+                final_conf_angka = 0.0
+
+        pred = final_pred_angka
+        confidence = final_conf_angka
 
     elif mode == "kata":
         result = holistic.process(rgb)

@@ -1,489 +1,243 @@
 <!DOCTYPE html>
 
-
-
 <html lang="id">
-
 <head>
-
 <meta charset="utf-8"/>
-
 <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
-
 <title>SignLens - Deteksi</title>
-
 <link href="assets/favicon.ico" rel="icon" type="image/x-icon"/>
-
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
-
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet"/>
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-
 <link href="css/styles.css" rel="stylesheet"/><link href="css/signlens-custom.css" rel="stylesheet"/>
-
 </head>
-
 <body class="d-flex flex-column h-100 bg-light">
-
 <main class="flex-shrink-0">
-
 <nav class="navbar navbar-expand-lg navbar-light bg-white py-3 shadow-sm sticky-top">
-
 <div class="container px-5">
-
 <a class="navbar-brand" href="index.html"><span class="fw-bolder text-primary">SignLens</span></a>
-
 <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
-
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder"><li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li><li class="nav-item"><a class="nav-link active" href="deteksi.html">Deteksi</a></li><li class="nav-item"><a class="nav-link" href="tentang.html">Tentang</a></li></ul>
-
 </div>
-
 </div>
-
 </nav>
-
 <section class="py-5 detect-hero">
-
 <div class="container px-5">
-
 <div class="text-center mb-5">
-
 <h1 class="display-5 fw-bolder mb-2"><span class="text-gradient d-inline">Deteksi Bahasa Isyarat</span></h1>
-
 <p class="lead fw-normal text-muted mb-0">Pilih mode deteksi, aktifkan kamera, lalu sistem akan menampilkan hasil prediksi secara otomatis.</p>
-
 </div>
-
 <div class="row gx-5 gy-4 align-items-start">
-
 <div class="col-lg-8">
-
 <div class="card border-0 shadow rounded-4 overflow-hidden">
-
 <div class="card-body p-4 p-md-5">
-
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-
 <div>
-
 <h2 class="fw-bolder mb-1">Kamera Deteksi</h2>
-
 </div>
-
 <div class="d-flex gap-2 flex-wrap" role="group" aria-label="Mode deteksi">
-
 <button class="btn btn-outline-primary mode-btn active" data-mode="huruf" type="button">Huruf</button>
-
 <button class="btn btn-outline-primary mode-btn" data-mode="angka" type="button">Angka</button>
-
 <button class="btn btn-outline-primary mode-btn" data-mode="kata" type="button">Kata</button>
-
 </div>
-
 </div>
-
 <div class="camera-box mb-4">
-
 <video autoplay="" id="video" muted="" playsinline=""></video>
-
 <canvas id="canvas"></canvas>
-
 <div class="cam-sweep"></div>
-
 <div class="cam-overlay-top">
-
 <div class="cam-mode-pill">MODE: <span id="cam-mode-badge">HURUF</span></div>
-
 <div class="cam-fps-pill">LIVE</div>
-
 </div>
-
 <div class="cam-corners">
-
 <div class="cc tl"></div><div class="cc tr"></div><div class="cc bl"></div><div class="cc br"></div>
-
 </div>
-
 <div class="cam-no-overlay" id="no-cam">
-
 <div class="cam-no-icon"><i class="bi bi-camera-video"></i></div>
-
 <div class="cam-no-title">Kamera belum aktif</div>
-
 <div class="cam-no-sub">Klik tombol Mulai Kamera untuk menjalankan deteksi.</div>
-
 </div>
-
 </div>
-
 <div class="d-flex flex-wrap gap-2">
-
 <button class="btn btn-primary btn-lg px-4" id="btn-start"><i class="bi bi-camera-video me-2"></i>Mulai Kamera</button>
-
-<button class="btn btn-warning btn-lg px-4 d-none" disabled="" id="btn-record-number"><i class="bi bi-record-circle me-2"></i>Rekam Angka 30 Frame</button>
-
 <button class="btn btn-outline-dark btn-lg px-4" disabled="" id="btn-stop"><i class="bi bi-stop-circle me-2"></i>Stop Kamera</button>
-
 </div>
-
 </div>
-
 </div>
-
 </div>
-
 <div class="col-lg-4">
-
 <div class="card border-0 shadow rounded-4 mb-4">
-
 <div class="card-body p-4">
-
 <div class="small text-uppercase text-muted fw-bolder mb-2">Hasil Prediksi</div>
-
 <div class="result-big-letter" id="display-result">–</div>
-
 <div class="text-center text-muted mb-3">Mode: <span class="fw-bolder text-primary" id="display-mode">HURUF</span></div>
-
 <div class="d-flex justify-content-between border-top pt-3">
-
 <span class="text-muted">Confidence</span>
-
 <span class="fw-bolder" id="display-confidence">–</span>
-
 </div>
-
 <div class="d-flex align-items-center gap-2 mt-3 pt-3 border-top">
-
 <span class="status-dot" id="status-dot"></span>
-
 <span class="result-bar-status text-muted" id="display-status">Kamera belum aktif</span>
-
 </div>
-
-<div class="alert alert-warning mt-3 mb-0" id="angka-info" style="display:none;">Mode angka: klik tombol <b>Rekam Angka 30 Frame</b> untuk mengambil 30 frame, seperti tombol SPACE pada versi realtime.</div>
-
 <div class="alert alert-success mt-3 mb-0" id="kata-info" style="display:none;">Mode kata membutuhkan posisi tangan dan wajah yang jelas.</div>
-
 </div>
-
 </div>
-
 </div>
-
 </div>
-
 <div class="mt-5 guide-section">
-
 <h2 class="fw-bolder mb-4">Panduan Gerakan</h2>
 
-
-
 <div class="card guide-card mb-3" id="guide-huruf">
-
 <div class="card-body p-4">
-
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-
 <div>
-
 <span class="guide-badge-pill">26 huruf</span>
-
 <h5 class="fw-bolder mb-1 mt-2">Panduan Huruf Alfabet</h5>
-
 </div>
-
 </div>
-
 <div class="d-flex flex-wrap gap-2 mb-4">
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="A" onclick="showHurufGuide('A')" type="button">A</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="B" onclick="showHurufGuide('B')" type="button">B</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="C" onclick="showHurufGuide('C')" type="button">C</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="D" onclick="showHurufGuide('D')" type="button">D</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="E" onclick="showHurufGuide('E')" type="button">E</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="F" onclick="showHurufGuide('F')" type="button">F</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="G" onclick="showHurufGuide('G')" type="button">G</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="H" onclick="showHurufGuide('H')" type="button">H</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="I" onclick="showHurufGuide('I')" type="button">I</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="J" onclick="showHurufGuide('J')" type="button">J</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="K" onclick="showHurufGuide('K')" type="button">K</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="L" onclick="showHurufGuide('L')" type="button">L</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="M" onclick="showHurufGuide('M')" type="button">M</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="N" onclick="showHurufGuide('N')" type="button">N</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="O" onclick="showHurufGuide('O')" type="button">O</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="P" onclick="showHurufGuide('P')" type="button">P</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="Q" onclick="showHurufGuide('Q')" type="button">Q</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="R" onclick="showHurufGuide('R')" type="button">R</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="S" onclick="showHurufGuide('S')" type="button">S</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="T" onclick="showHurufGuide('T')" type="button">T</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="U" onclick="showHurufGuide('U')" type="button">U</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="V" onclick="showHurufGuide('V')" type="button">V</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="W" onclick="showHurufGuide('W')" type="button">W</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="X" onclick="showHurufGuide('X')" type="button">X</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="Y" onclick="showHurufGuide('Y')" type="button">Y</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip huruf-btn" data-huruf="Z" onclick="showHurufGuide('Z')" type="button">Z</button>
-
 </div>
-
 <div class="hidden kata-preview-card" id="img-wrap-huruf">
-
 <div class="fw-bolder text-center mb-3" id="huruf-preview-title">Panduan Huruf</div>
-
 <img alt="Panduan huruf" class="guide-img" id="huruf-guide-img" src=""/>
-
 <p class="guide-caption text-muted text-center small mt-2 mb-0" id="huruf-guide-caption"></p>
-
 </div>
-
 </div>
-
 </div>
-
-
 
 <div class="card guide-card mb-3 hidden" id="guide-angka">
-
 <div class="card-body p-4">
-
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-
 <div>
-
 <span class="guide-badge-pill">30 angka</span>
-
 <h5 class="fw-bolder mb-1 mt-2">Panduan Angka</h5>
-
 </div>
-
 </div>
-
 <div class="d-flex flex-wrap gap-2 mb-4">
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="1" onclick="showAngkaGuide('1')" type="button">1</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="2" onclick="showAngkaGuide('2')" type="button">2</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="3" onclick="showAngkaGuide('3')" type="button">3</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="4" onclick="showAngkaGuide('4')" type="button">4</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="5" onclick="showAngkaGuide('5')" type="button">5</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="6" onclick="showAngkaGuide('6')" type="button">6</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="7" onclick="showAngkaGuide('7')" type="button">7</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="8" onclick="showAngkaGuide('8')" type="button">8</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="9" onclick="showAngkaGuide('9')" type="button">9</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="10" onclick="showAngkaGuide('10')" type="button">10</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="11" onclick="showAngkaGuide('11')" type="button">11</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="12" onclick="showAngkaGuide('12')" type="button">12</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="13" onclick="showAngkaGuide('13')" type="button">13</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="14" onclick="showAngkaGuide('14')" type="button">14</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="15" onclick="showAngkaGuide('15')" type="button">15</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="16" onclick="showAngkaGuide('16')" type="button">16</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="17" onclick="showAngkaGuide('17')" type="button">17</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="18" onclick="showAngkaGuide('18')" type="button">18</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="19" onclick="showAngkaGuide('19')" type="button">19</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="20" onclick="showAngkaGuide('20')" type="button">20</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="21" onclick="showAngkaGuide('21')" type="button">21</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="22" onclick="showAngkaGuide('22')" type="button">22</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="23" onclick="showAngkaGuide('23')" type="button">23</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="24" onclick="showAngkaGuide('24')" type="button">24</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="25" onclick="showAngkaGuide('25')" type="button">25</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="26" onclick="showAngkaGuide('26')" type="button">26</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="27" onclick="showAngkaGuide('27')" type="button">27</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="28" onclick="showAngkaGuide('28')" type="button">28</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="29" onclick="showAngkaGuide('29')" type="button">29</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip angka-btn" data-angka="30" onclick="showAngkaGuide('30')" type="button">30</button>
-
 </div>
-
 <div class="hidden kata-preview-card" id="img-wrap-angka">
-
 <div class="fw-bolder text-center mb-3" id="angka-preview-title">Panduan Angka</div>
-
 <video id="angka-guide-video" class="guide-img" controls preload="auto" loop muted playsinline style="width:100%;height:auto;pointer-events:auto;"></video>
-
 <p class="guide-caption text-muted text-center small mt-2 mb-0" id="angka-guide-caption"></p>
-
 </div>
-
 </div>
-
 </div>
-
-
 
 <div class="card guide-card mb-3 hidden" id="guide-kata">
-
 <div class="card-body p-4">
-
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-
 <div>
-
 <span class="guide-badge-pill">30 kata</span>
-
 <h5 class="fw-bolder mb-1 mt-2">Panduan Gerakan Kata</h5>
-
 </div>
-
 </div>
-
 <input class="form-control kata-search mb-3" id="kata-search" type="text" placeholder="Cari kata..." autocomplete="off" />
-
 <div class=" d-flex flex-wrap gap-2 mb-4" id="kata-list">
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="apa" onclick="showKataGuide('apa')" type="button">Apa</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="ayah" onclick="showKataGuide('ayah')" type="button">Ayah</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="bantu" onclick="showKataGuide('bantu')" type="button">Bantu</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="berdoa" onclick="showKataGuide('berdoa')" type="button">Berdoa</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="berjalan" onclick="showKataGuide('berjalan')" type="button">Berjalan</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="berpikir" onclick="showKataGuide('berpikir')" type="button">Berpikir</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="bertemu" onclick="showKataGuide('bertemu')" type="button">Bertemu</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="boleh" onclick="showKataGuide('boleh')" type="button">Boleh</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="coba" onclick="showKataGuide('coba')" type="button">Coba</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="dimana" onclick="showKataGuide('dimana')" type="button">Dimana</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="hati-hati" onclick="showKataGuide('hati-hati')" type="button">Hati-Hati</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="ibu" onclick="showKataGuide('ibu')" type="button">Ibu</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="iya" onclick="showKataGuide('iya')" type="button">Iya</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="kamu" onclick="showKataGuide('kamu')" type="button">Kamu</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="kapan" onclick="showKataGuide('kapan')" type="button">Kapan</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="lagi" onclick="showKataGuide('lagi')" type="button">Lagi</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="maaf" onclick="showKataGuide('maaf')" type="button">Maaf</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="makan" onclick="showKataGuide('makan')" type="button">Makan</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="mandi" onclick="showKataGuide('mandi')" type="button">Mandi</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="mau" onclick="showKataGuide('mau')" type="button">Mau</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="sama-sama" onclick="showKataGuide('sama-sama')" type="button">Sama-Sama</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="saya" onclick="showKataGuide('saya')" type="button">Saya</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="sekarang" onclick="showKataGuide('sekarang')" type="button">Sekarang</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="semangat" onclick="showKataGuide('semangat')" type="button">Semangat</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="sibuk" onclick="showKataGuide('sibuk')" type="button">Sibuk</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="terimakasih" onclick="showKataGuide('terimakasih')" type="button">Terimakasih</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="tidak" onclick="showKataGuide('tidak')" type="button">Tidak</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="tidur" onclick="showKataGuide('tidur')" type="button">Tidur</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="toilet" onclick="showKataGuide('toilet')" type="button">Toilet</button>
-
 <button class="btn btn-outline-primary btn-sm kata-chip btn-kata-guide" data-kata="tolong" onclick="showKataGuide('tolong')" type="button">Tolong</button>
-
 </div>
-
 <div class="kata-empty alert alert-light border hidden" id="kata-empty">Kata tidak ditemukan.</div>
-
 <div class="hidden kata-preview-card" id="img-wrap-kata">
-
 <div class="fw-bolder text-center mb-3" id="kata-guide-caption">Panduan Gerakan</div>
-
 <img alt="Panduan kata" class="guide-img" id="kata-guide-img" src=""/>
-
 <p class="guide-caption text-muted text-center small mt-2 mb-0" id="kata-guide-subcaption"></p>
-
 </div>
-
 </div>
-
 </div>
-
 </div>
-
 </div>
-
 </section>
-
 </main>
-
 <footer class="bg-white py-4 mt-auto border-top"><div class="container px-5"><div class="row align-items-center justify-content-between flex-column flex-sm-row gap-2"><div class="col-auto"><div class="small m-0">Copyright © SignLens 2026</div></div><div class="col-auto small"><a class="footer-link" href="index.html">Beranda</a><span class="mx-1">·</span><a class="footer-link" href="deteksi.html">Deteksi</a><span class="mx-1">·</span><a class="footer-link" href="tentang.html">Tentang</a></div></div></div></footer>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="js/scripts.js"></script>
-
-<script src="app.js"></script>
-
+<script src="js/app.js"></script>
 </body>
-
 </html>
